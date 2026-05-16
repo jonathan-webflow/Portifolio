@@ -1,0 +1,151 @@
+---
+---
+
+<div data-cursor="" class="cursor">
+  <div class="cursor-scramble">
+    <span data-cursor-text-target="" class="cursor-scramble__text">View website</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 22 39" fill="none" class="cursor-scramble__chevron">
+      <path d="M1.875 36.875L19.375 19.375L1.875 1.875" stroke="currentColor" stroke-width="5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</div>
+
+<style>
+  .cursor {
+    z-index: var(--z-top);
+    pointer-events: none;
+    padding-top: 1em;
+    padding-left: .5em;
+    padding-right: 1em;
+    position: fixed;
+    top: 0;
+    left: 0;
+    font-family: var(--font-primary);
+  }
+
+  .cursor-scramble {
+    gap: .5em;
+    opacity: 0;
+    color: var(--color-text);
+    background-color: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: .25em;
+    justify-content: center;
+    align-items: center;
+    height: 2em;
+    padding-left: .75em;
+    padding-right: .75em;
+    display: flex;
+    position: relative;
+  }
+
+  .cursor-scramble__text {
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    font-size: .875em;
+    font-weight: 500;
+  }
+
+  .cursor-scramble__chevron {
+    color: var(--color-accent);
+    width: .375em;
+    flex-shrink: 0;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-cursor] .cursor-scramble {
+      transition: transform 0.4s cubic-bezier(0.625, 0.05, 0, 1), opacity 0.2s ease 0.1s;
+      transform: translateX(0%) scale(1) rotate(0.001deg);
+    }
+
+    [data-cursor="active"] .cursor-scramble {
+      transition: transform 0.4s cubic-bezier(0.625, 0.05, 0, 1), opacity 0.2s ease 0s;
+      opacity: 1;
+      transform: translateX(0%) scale(1) rotate(0.001deg);
+    }
+
+    [data-cursor="active-edge"] .cursor-scramble {
+      transition: transform 0.4s cubic-bezier(0.625, 0.05, 0, 1), opacity 0.2s ease 0s;
+      opacity: 1;
+      transform: translateX(-100%) scale(1) rotate(0.001deg);
+    }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .cursor { display: none; }
+  }
+</style>
+
+<script is:inline>
+  function initScrambleTextCursor() {
+    if (typeof gsap === 'undefined' || typeof ScrambleTextPlugin === 'undefined') {
+      setTimeout(initScrambleTextCursor, 50);
+      return;
+    }
+
+    gsap.registerPlugin(ScrambleTextPlugin);
+
+    var cursor = document.querySelector('[data-cursor]');
+    var cursorTextTarget = document.querySelector('[data-cursor-text-target]');
+
+    if (
+      !cursor ||
+      !cursorTextTarget ||
+      !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    ) return;
+
+    var mouseX = 0;
+    var mouseY = 0;
+    var hasMouseMoved = false;
+    var activeHoverItem = null;
+    var scrambleChars = 'XYZxy#&@0$€£';
+
+    var xTo = gsap.quickTo(cursor, 'x', { duration: 0.4, ease: 'power3.out' });
+    var yTo = gsap.quickTo(cursor, 'y', { duration: 0.4, ease: 'power3.out' });
+
+    function updateCursor() {
+      var hoverItem = document.elementFromPoint(mouseX, mouseY);
+      hoverItem = hoverItem ? hoverItem.closest('[data-cursor-hover]') : null;
+
+      var rect = cursor.getBoundingClientRect();
+      var isHovering = !!hoverItem;
+      var isEdge = rect.right >= window.innerWidth;
+      var text = hoverItem ? (hoverItem.getAttribute('data-cursor-text') || '') : '';
+
+      cursor.setAttribute('data-cursor', isHovering ? (isEdge ? 'active-edge' : 'active') : '');
+
+      if (hoverItem !== activeHoverItem) {
+        gsap.to(cursorTextTarget, {
+          duration: 0.6,
+          overwrite: 'auto',
+          scrambleText: {
+            text: text,
+            chars: scrambleChars,
+            speed: 1.2,
+          },
+        });
+        activeHoverItem = hoverItem;
+      }
+    }
+
+    window.addEventListener('mousemove', function (e) {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      hasMouseMoved = true;
+      xTo(mouseX);
+      yTo(mouseY);
+      requestAnimationFrame(updateCursor);
+    });
+
+    window.addEventListener('scroll', function () {
+      if (!hasMouseMoved) return;
+      requestAnimationFrame(updateCursor);
+    }, { passive: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrambleTextCursor);
+  } else {
+    initScrambleTextCursor();
+  }
+</script>

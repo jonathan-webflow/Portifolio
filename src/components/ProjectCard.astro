@@ -1,0 +1,303 @@
+---
+/**
+ * ProjectCard.astro
+ *
+ * Componente de card para projetos do portfólio.
+ * Consome tipagem da Content Collection 'projects'.
+ *
+ * Atributos data-* prontos para animações GSAP:
+ *   data-reveal          → trigger de entrada (ScrollTrigger)
+ *   data-speed           → parallax (ScrollSmoother / Lenis)
+ *   data-reveal-delay    → atraso do stagger (lido pelo script de animação)
+ *
+ * Uso:
+ *   import ProjectCard from '@/components/ProjectCard.astro';
+ *   <ProjectCard entry={project} index={i} />
+ */
+
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+  /** Índice para stagger delay nas animações */
+  index?: number;
+}
+
+const { entry, index = 0 } = Astro.props;
+const { title, client, year, role, coverImage, tags, featured, description, url, accentColor } =
+  entry.data;
+
+/** Stagger delay em décimos de segundo (0, 0.1, 0.2 ...) */
+const staggerDelay = (index * 0.1).toFixed(1);
+
+/** ID do projeto para a rota interna (Astro v5+ usa entry.id) */
+const projectSlug = `/projects/${entry.id.replace(/\.mdx?$/, '')}`;
+---
+
+<article
+  class="project-card"
+  class:list={[{ 'project-card--featured': featured }]}
+  data-reveal
+  data-reveal-delay={staggerDelay}
+  data-speed="0.95"
+  style={accentColor ? `--card-accent: ${accentColor}` : undefined}
+>
+  <a href={projectSlug} class="project-card__link" aria-label={`Ver projeto: ${title}`}>
+
+    <!-- Imagem de capa -->
+    <div class="project-card__media" data-reveal-child>
+      <Image
+        src={coverImage}
+        alt={`${title} — ${client}`}
+        class="project-card__image"
+        width={800}
+        height={600}
+        loading="lazy"
+        decoding="async"
+        format="webp"
+      />
+      <div class="project-card__media-overlay" aria-hidden="true"></div>
+    </div>
+
+    <!-- Conteúdo textual -->
+    <div class="project-card__content">
+      <header class="project-card__header">
+        <!-- Index numérico estilo editorial -->
+        <span class="project-card__index" aria-hidden="true">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+
+        {featured && (
+          <span class="project-card__badge">Featured</span>
+        )}
+      </header>
+
+      <h2 class="project-card__title">{title}</h2>
+
+      {description && (
+        <p class="project-card__description">{description}</p>
+      )}
+
+      <footer class="project-card__meta">
+        <dl class="project-card__details">
+          <div class="project-card__detail">
+            <dt class="project-card__detail-label">Cliente</dt>
+            <dd class="project-card__detail-value">{client}</dd>
+          </div>
+          <div class="project-card__detail">
+            <dt class="project-card__detail-label">Ano</dt>
+            <dd class="project-card__detail-value">{year}</dd>
+          </div>
+          <div class="project-card__detail">
+            <dt class="project-card__detail-label">Role</dt>
+            <dd class="project-card__detail-value">{role}</dd>
+          </div>
+        </dl>
+
+        {tags.length > 0 && (
+          <ul class="project-card__tags" aria-label="Tecnologias e categorias">
+            {tags.map((tag) => (
+              <li class="project-card__tag">{tag}</li>
+            ))}
+          </ul>
+        )}
+
+        <span class="project-card__cta" aria-hidden="true">
+          Ver projeto →
+        </span>
+      </footer>
+    </div>
+
+  </a>
+</article>
+
+<style>
+  /* ============================================================
+     ProjectCard — Estilos
+     Scoped por padrão no Astro. Sem dependência de framework.
+     ============================================================ */
+
+  .project-card {
+    position: relative;
+    border-bottom: 1px solid var(--color-border);
+    --card-accent: var(--color-accent);
+  }
+
+  .project-card__link {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: var(--space-md) 0;
+    transition: none; /* Transições controladas pelo GSAP */
+  }
+
+  @media (min-width: 768px) {
+    .project-card__link {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: var(--space-md);
+    }
+  }
+
+  /* --- Media ------------------------------------------------ */
+  .project-card__media {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background-color: var(--color-bg-alt);
+  }
+
+  .project-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    /* Scale controlado pelo GSAP no hover */
+    transform-origin: center center;
+    will-change: transform;
+  }
+
+  .project-card__media-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 60%,
+      rgba(0, 0, 0, 0.4) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* --- Conteúdo --------------------------------------------- */
+  .project-card__content {
+    padding: var(--space-sm) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  @media (min-width: 768px) {
+    .project-card__content {
+      padding: var(--space-md);
+    }
+  }
+
+  /* --- Header ----------------------------------------------- */
+  .project-card__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .project-card__index {
+    font-size: var(--caps);
+    letter-spacing: 0.01em;
+    line-height: 1.0;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .project-card__badge {
+    font-size: var(--caps);
+    letter-spacing: 0.01em;
+    line-height: 1.0;
+    text-transform: uppercase;
+    padding: 0.2em 0.6em;
+    border: 1px solid var(--card-accent);
+    color: var(--card-accent);
+    border-radius: 100px;
+  }
+
+  /* --- Título ----------------------------------------------- */
+  .project-card__title {
+    font-size: var(--h2);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 0.87;
+    color: var(--color-text);
+  }
+
+  /* --- Descrição -------------------------------------------- */
+  .project-card__description {
+    font-size: var(--paragraph-m);
+    color: var(--color-text-muted);
+    line-height: 1.20;
+    letter-spacing: -0.01em;
+    max-width: 40ch;
+  }
+
+  /* --- Meta ------------------------------------------------- */
+  .project-card__meta {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .project-card__details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-md);
+  }
+
+  .project-card__detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+  }
+
+  .project-card__detail-label {
+    font-size: var(--caps);
+    letter-spacing: 0.01em;
+    line-height: 1.0;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .project-card__detail-value {
+    font-size: var(--paragraph-s);
+    letter-spacing: 0em;
+    line-height: 1.20;
+    color: var(--color-text);
+  }
+
+  /* --- Tags ------------------------------------------------- */
+  .project-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .project-card__tag {
+    font-size: var(--caps);
+    letter-spacing: 0.01em;
+    line-height: 1.0;
+    padding: 0.25em 0.75em;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 100px;
+    color: var(--color-text-muted);
+  }
+
+  /* --- CTA -------------------------------------------------- */
+  .project-card__cta {
+    font-size: var(--caps);
+    letter-spacing: 0.01em;
+    line-height: 1.0;
+    color: var(--color-text-muted);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.3s var(--ease-out-expo),
+                transform 0.3s var(--ease-out-expo);
+  }
+
+  .project-card:hover .project-card__cta {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* --- Modifier: Featured ----------------------------------- */
+  .project-card--featured .project-card__title {
+    font-size: var(--h1);
+  }
+</style>

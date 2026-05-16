@@ -1,0 +1,457 @@
+---
+interface Props {
+  calLink?: string;
+  github?: string;
+  instagram?: string;
+  linkedin?: string;
+  dribbble?: string;
+  copyrightName?: string;
+}
+
+const {
+  calLink = '#',
+  github,
+  instagram,
+  linkedin,
+  dribbble,
+  copyrightName = 'Jonathan Rocha',
+} = Astro.props;
+
+const year = new Date().getFullYear();
+
+const socials = [
+  { label: 'GitHub', href: github },
+  { label: 'Instagram', href: instagram },
+  { label: 'LinkedIn', href: linkedin },
+  { label: 'Dribbble', href: dribbble },
+].filter((s): s is { label: string; href: string } => Boolean(s.href));
+---
+
+<section id="contact" class="contact-section">
+  <hr class="contact-section__divider" aria-hidden="true" />
+
+  <div class="contact-section__inner">
+
+    <div class="contact-section__letter contact-section__letter--j" aria-hidden="true">J</div>
+
+    {socials.length > 0 && (
+      <nav class="contact-section__social" aria-label="Social links">
+        {socials.map(({ label, href }) => (
+          <a
+            href={href}
+            class="contact-section__social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${label} (opens in new tab)`}
+          >
+            <span class="contact-section__social-text">
+              <span class="contact-section__social-original">{label}</span>
+              <span class="contact-section__social-duplicate" aria-hidden="true">{label}</span>
+            </span>
+            <svg
+              viewBox="0 0 73 73"
+              width="12"
+              height="12"
+              fill="none"
+              aria-hidden="true"
+              class="contact-section__social-icon"
+            >
+              <path
+                fill="currentColor"
+                d="M25.231 57.5318C26.4239 56.339 28.259 56.339 29.4518 57.5318L34.4067 62.4867C35.5996 63.6796 37.4347 63.6796 38.6276 62.4867L43.766 57.3483C44.9588 56.1555 44.9588 54.3203 43.766 53.1275L-0.0022583 9.35924L9.35699 0L53.1252 43.7682C54.3181 44.9611 56.1532 44.9611 57.3461 43.7682L62.4845 38.6298C63.6773 37.437 63.6773 35.6018 62.4845 34.409L57.5296 29.4541C56.3367 28.2613 56.3367 26.4261 57.5296 25.2333L62.668 20.0949C63.8608 18.902 63.8608 17.0669 62.668 15.874L57.7131 10.9191C56.5203 9.72627 56.5203 7.89113 57.7131 6.69828L62.8515 1.55987C64.0444 0.367027 65.8795 0.367029 67.0723 1.55988L72.0272 6.51477C73.2201 7.70762 73.2201 9.54276 72.0272 10.7356L66.8888 15.874C65.696 17.0669 65.696 18.902 66.8888 20.0949L71.8437 25.0497C73.0366 26.2426 73.0366 28.0777 71.8437 29.2706L66.7053 34.409C65.5125 35.6018 65.5125 37.437 66.7053 38.6298L71.6602 43.5847C72.8531 44.7776 72.8531 46.6127 71.6602 47.8056L66.5218 52.944C65.329 54.1368 65.329 55.972 66.5218 57.1648L71.4767 62.1197C72.6695 63.3126 72.6695 65.1477 71.4767 66.3405L66.3383 71.479C65.1454 72.6718 63.3103 72.6718 62.1175 71.479L57.1626 66.5241C55.9697 65.3312 54.1346 65.3312 52.9417 66.5241L47.8033 71.6625C46.6105 72.8553 44.7753 72.8553 43.5825 71.6625L38.6276 66.7076C37.4347 65.5147 35.5996 65.5147 34.4067 66.7076L29.2683 71.846C28.0755 73.0388 26.2403 73.0388 25.0475 71.846L20.0926 66.8911C18.8997 65.6982 17.0646 65.6982 15.8718 66.8911L10.7333 72.0295C9.5405 73.2223 7.70536 73.2223 6.51251 72.0295L1.55762 67.0746C0.364769 65.8818 0.364777 64.0466 1.55762 62.8538L6.69603 57.7154C7.88888 56.5225 9.72402 56.5225 10.9169 57.7154L15.8718 62.6702C17.0646 63.8631 18.8997 63.8631 20.0926 62.6702L25.231 57.5318ZM52.9417 62.3032C54.1346 63.4961 55.9697 63.4961 57.1626 62.3032L62.301 57.1648C63.4938 55.972 63.4938 54.1368 62.301 52.944L57.3461 47.9891C56.1532 46.7962 54.3181 46.7962 53.1252 47.9891L47.9868 53.1275C46.794 54.3203 46.794 56.1555 47.9868 57.3483L52.9417 62.3032Z"
+              />
+            </svg>
+          </a>
+        ))}
+      </nav>
+    )}
+
+    <span class="contact-section__binary contact-section__binary--left" aria-hidden="true">
+      0101010101
+    </span>
+
+    <div class="contact-section__center">
+      <p class="contact-section__headline">Let's work together</p>
+
+      <a
+        href={calLink}
+        class="contact-section__cta"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Schedule a call (opens in new tab)"
+      >
+        <svg class="contact-section__corner contact-section__corner--tl" viewBox="0 0 7 7" width="7" height="7" fill="none" aria-hidden="true">
+          <path d="M1 7V1H7" stroke="currentColor"/>
+        </svg>
+        <svg class="contact-section__corner contact-section__corner--tr" viewBox="0 0 7 7" width="7" height="7" fill="none" aria-hidden="true">
+          <path d="M6 7V1H0" stroke="currentColor"/>
+        </svg>
+
+        <span class="contact-section__cta-text">
+          <span class="contact-section__cta-original">Schedule a call</span>
+          <span class="contact-section__cta-duplicate" aria-hidden="true">Schedule a call</span>
+        </span>
+
+        <svg class="contact-section__corner contact-section__corner--bl" viewBox="0 0 7 7" width="7" height="7" fill="none" aria-hidden="true">
+          <path d="M1 0V6H7" stroke="currentColor"/>
+        </svg>
+        <svg class="contact-section__corner contact-section__corner--br" viewBox="0 0 7 7" width="7" height="7" fill="none" aria-hidden="true">
+          <path d="M6 0V6H0" stroke="currentColor"/>
+        </svg>
+      </a>
+    </div>
+
+    <span class="contact-section__binary contact-section__binary--right" aria-hidden="true">
+      0101010101
+    </span>
+
+    <p class="contact-section__copyright">© Copyright {year} {copyrightName}</p>
+    <p class="contact-section__rights">All rights reserved</p>
+
+    <div class="contact-section__letter contact-section__letter--r" aria-hidden="true">R</div>
+
+  </div>
+</section>
+
+<script>
+  function initContactSection() {
+    const gsap = (window as any).gsap;
+    const ScrollTrigger = (window as any).ScrollTrigger;
+    if (!gsap || !ScrollTrigger) {
+      window.addEventListener('load', initContactSection, { once: true });
+      return;
+    }
+
+    const divider = document.querySelector<HTMLElement>('.contact-section__divider');
+    if (divider) {
+      gsap.to(divider, {
+        scaleX: 1,
+        duration: 1.2,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '#contact',
+          start: 'top 85%',
+          toggleActions: 'play none none reverse',
+        },
+      });
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const letterJ = document.querySelector<HTMLElement>('.contact-section__letter--j');
+    const letterR = document.querySelector<HTMLElement>('.contact-section__letter--r');
+    if (!letterJ || !letterR) return;
+
+    function scrambleLetter(el: HTMLElement, text: string) {
+      gsap.to(el, {
+        scrambleText: {
+          text,
+          chars: 'upperCase',
+          tweenLength: false,
+          speed: 0.4,
+        },
+        duration: 0.8,
+        ease: 'power2.inOut',
+      });
+    }
+
+    // Inicia o loop apenas quando a section entra na viewport
+    ScrollTrigger.create({
+      trigger: '#contact',
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        // J dispara primeiro, R com 1.5s de offset — efeito alternado
+        setInterval(() => scrambleLetter(letterJ, 'J'), 3000);
+        setTimeout(() => {
+          setInterval(() => scrambleLetter(letterR, 'R'), 3000);
+        }, 1500);
+      },
+    });
+  }
+  initContactSection();
+</script>
+
+<style>
+  .contact-section {
+    --letter-display: clamp(4rem, 12vw, 16rem);
+    position: relative;
+    background: var(--color-bg);
+  }
+
+  .contact-section__divider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    border: none;
+    background: var(--color-border);
+    transform: scaleX(0);
+    transform-origin: left;
+    z-index: var(--z-above);
+  }
+
+  .contact-section__inner {
+    position: relative;
+    height: 100svh;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Decorative letters ─────────────────────────────── */
+  .contact-section__letter {
+    position: absolute;
+    font-family: var(--font-display);
+    font-size: var(--letter-display);
+    color: var(--color-text);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .contact-section__letter--j {
+    top: var(--space-md);
+    left: var(--container-padding);
+  }
+
+  .contact-section__letter--r {
+    bottom: var(--space-md);
+    right: var(--container-padding);
+  }
+
+  /* ── Social links ───────────────────────────────────── */
+  .contact-section__social {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--container-padding);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    align-items: flex-end;
+    z-index: var(--z-above);
+  }
+
+  .contact-section__social-link {
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    color: var(--color-text);
+    text-decoration: none;
+    font-family: var(--font-primary);
+    font-size: var(--paragraph-s);
+    transition: color 0.4s var(--ease-out-expo);
+  }
+
+  .contact-section__social-link:hover {
+    color: var(--color-accent);
+  }
+
+  .contact-section__social-text {
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-section__social-original,
+  .contact-section__social-duplicate {
+    display: block;
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+
+  .contact-section__social-duplicate {
+    position: absolute;
+    inset: 0;
+    transform: translateY(100%);
+  }
+
+  .contact-section__social-link:hover .contact-section__social-original {
+    transform: translateY(-100%);
+  }
+
+  .contact-section__social-link:hover .contact-section__social-duplicate {
+    transform: translateY(0);
+  }
+
+  .contact-section__social-icon {
+    flex-shrink: 0;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+
+  .contact-section__social-link:hover .contact-section__social-icon {
+    transform: rotate(-90deg) translate(-2px, 2px);
+  }
+
+  /* ── Binary vertical text ───────────────────────────── */
+  .contact-section__binary {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-lr;
+    font-family: var(--font-primary);
+    font-size: var(--caps);
+    letter-spacing: 0.15em;
+    color: var(--color-text-muted);
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.5;
+    z-index: var(--z-above);
+  }
+
+  .contact-section__binary--left {
+    left: var(--container-padding);
+  }
+
+  .contact-section__binary--right {
+    right: var(--container-padding);
+  }
+
+  /* ── Center content ─────────────────────────────────── */
+  .contact-section__center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .contact-section__headline {
+    font-family: var(--font-display);
+    font-size: var(--h1);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.87;
+    margin: 0;
+  }
+
+  /* ── CTA button ─────────────────────────────────────── */
+  .contact-section__cta {
+    position: relative;
+    display: inline-block;
+    padding: var(--space-sm) var(--space-md);
+    text-decoration: none;
+    color: var(--color-text);
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .contact-section__corner {
+    position: absolute;
+    color: var(--color-text);
+    opacity: 0.3;
+    transition:
+      transform 0.4s var(--ease-out-expo),
+      opacity 0.4s var(--ease-out-expo),
+      color 0.4s var(--ease-out-expo);
+  }
+
+  .contact-section__corner--tl { top: 0; left: 0; }
+  .contact-section__corner--tr { top: 0; right: 0; }
+  .contact-section__corner--bl { bottom: 0; left: 0; }
+  .contact-section__corner--br { bottom: 0; right: 0; }
+
+  .contact-section__cta:hover .contact-section__corner {
+    opacity: 1;
+    color: var(--color-accent);
+  }
+
+  .contact-section__cta:hover .contact-section__corner--tl {
+    transform: translate(-3px, -3px);
+  }
+
+  .contact-section__cta:hover .contact-section__corner--tr {
+    transform: translate(3px, -3px);
+  }
+
+  .contact-section__cta:hover .contact-section__corner--bl {
+    transform: translate(-3px, 3px);
+  }
+
+  .contact-section__cta:hover .contact-section__corner--br {
+    transform: translate(3px, 3px);
+  }
+
+  .contact-section__cta-text {
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-section__cta-original,
+  .contact-section__cta-duplicate {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--display);
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.87;
+    transition:
+      transform 0.4s var(--ease-out-expo),
+      color 0.4s var(--ease-out-expo);
+  }
+
+  .contact-section__cta-duplicate {
+    position: absolute;
+    inset: 0;
+    transform: translateY(100%);
+  }
+
+  .contact-section__cta:hover .contact-section__cta-original {
+    transform: translateY(-100%);
+    color: var(--color-accent);
+  }
+
+  .contact-section__cta:hover .contact-section__cta-duplicate {
+    transform: translateY(0);
+    color: var(--color-accent);
+  }
+
+  /* ── Bottom meta ────────────────────────────────────── */
+  .contact-section__copyright {
+    position: absolute;
+    bottom: var(--space-md);
+    left: var(--container-padding);
+    font-family: var(--font-primary);
+    font-size: var(--paragraph-s);
+    color: var(--color-text-muted);
+    margin: 0;
+    z-index: var(--z-above);
+  }
+
+  .contact-section__rights {
+    position: absolute;
+    bottom: var(--space-md);
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-primary);
+    font-size: var(--paragraph-s);
+    color: var(--color-text-muted);
+    margin: 0;
+    white-space: nowrap;
+    z-index: var(--z-above);
+  }
+
+  /* ── Accessibility ──────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .contact-section__cta-original,
+    .contact-section__cta-duplicate,
+    .contact-section__social-original,
+    .contact-section__social-duplicate,
+    .contact-section__corner,
+    .contact-section__social-icon {
+      transition: none;
+    }
+  }
+</style>

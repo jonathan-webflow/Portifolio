@@ -1,0 +1,459 @@
+---
+/**
+ * HeroSlider.astro — Oimachi-style hover-driven image showcase
+ *
+ * Layout (100svh, flex column):
+ *   ┌─ oh__top ──────────────────────────────────────┐
+ *   │  eyebrow + animated title (left)  sub + count  │
+ *   ├─ oh__indicators ───────────────────────────────┤
+ *   │  5 thin bars — hover OR click switches slide   │
+ *   ├─ oh__graphic ──────────────────────────────────┤
+ *   │  full-bleed image (flex-grow, stacked abs)     │
+ *   └────────────────────────────────────────────────┘
+ *
+ * Animations: GSAP (char-by-char title, opacity crossfade, scaleX bar)
+ * Interaction: mouseenter on indicator triggers immediate slide change
+ * Auto-advance: 5s per slide, resets on user interaction
+ */
+
+import { getImage } from 'astro:assets';
+
+import slider01 from '../assets/images/hero-medias/01.png';
+import slider03 from '../assets/images/hero-medias/03.png';
+import slider05 from '../assets/images/hero-medias/05.png';
+import slider07 from '../assets/images/hero-medias/07.png';
+import slider09 from '../assets/images/hero-medias/09.png';
+
+const BG_W = 1920;
+const BG_H = 1080;
+
+const slideSources = [slider01, slider03, slider05, slider07, slider09] as const;
+const optimizedSlides = await Promise.all(
+  slideSources.map((src) => getImage({ src, width: BG_W, height: BG_H, format: 'webp' }))
+);
+
+const slides = [
+  {
+    bgUrl: optimizedSlides[0].src,
+    eyebrow: 'Creative Development',
+    title: 'BUILDING DIGITAL EXPERIENCES.',
+    sub: 'Webflow · Shopify · Code & Motion',
+  },
+  {
+    bgUrl: optimizedSlides[1].src,
+    eyebrow: 'Webflow Expert',
+    title: 'DESIGN SYSTEMS THAT SCALE.',
+    sub: 'Certified Webflow Partner since 2021',
+  },
+  {
+    bgUrl: optimizedSlides[2].src,
+    eyebrow: 'Shopify Partner',
+    title: 'E-COMMERCE THAT CONVERTS.',
+    sub: 'From concept to launch — fast',
+  },
+  {
+    bgUrl: optimizedSlides[3].src,
+    eyebrow: 'Motion & Code',
+    title: 'ANIMATIONS THAT SELL.',
+    sub: 'GSAP · ScrollTrigger · Three.js',
+  },
+  {
+    bgUrl: optimizedSlides[4].src,
+    eyebrow: 'Brand & Identity',
+    title: 'STORIES WORTH TELLING.',
+    sub: 'Strategy · Design · Development',
+  },
+];
+const total = slides.length;
+---
+
+<section class="oh" aria-label="Portfolio slideshow">
+
+  <!-- Counter: absolute top-right -->
+  <span class="oh__count" aria-live="polite">
+    <span data-oh-current>01</span
+    ><span class="oh__count-sep">/</span
+    ><span>{String(total).padStart(2, '0')}</span>
+  </span>
+
+  <!-- Top zone: eyebrow + title (full width) -->
+  <div class="oh__top">
+    <p class="oh__eyebrow" data-oh-eyebrow>{slides[0].eyebrow}</p>
+    <h2 class="oh__title" data-oh-title>{slides[0].title}</h2>
+  </div>
+
+  <!-- Indicator row (hover + click) -->
+  <nav class="oh__indicators" aria-label="Slide indicators">
+    {slides.map((_, i) => (
+      <button
+        class={`oh__indicator${i === 0 ? ' is-active' : ''}`}
+        aria-label={`Slide ${i + 1} de ${total}`}
+        aria-selected={i === 0 ? 'true' : 'false'}
+        data-oh-indicator={i}
+      >
+        <span class="oh__indicator-bar" data-oh-bar={i}></span>
+      </button>
+    ))}
+  </nav>
+
+  <!-- Sub caption: overlays bottom-left of image -->
+  <p class="oh__sub" data-oh-sub>{slides[0].sub}</p>
+
+  <!-- Graphic: stacked images, crossfade via GSAP -->
+  <div class="oh__graphic" aria-hidden="true">
+    {slides.map((slide, i) => (
+      <div
+        class="oh__img"
+        style={`background-image: url(${JSON.stringify(slide.bgUrl)})`}
+        data-oh-img={i}
+      />
+    ))}
+  </div>
+
+</section>
+
+<style>
+  /* ── Section ─────────────────────────────────────────────────── */
+  .oh {
+    height: 100svh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Counter (absolute top-right) ────────────────────────────── */
+  .oh__count {
+    position: absolute;
+    top: var(--container-padding);
+    right: var(--container-padding);
+    z-index: 3;
+    font-family: var(--font-display);
+    font-size: var(--paragraph-s);
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .oh__count-sep {
+    margin-inline: 0.1em;
+  }
+
+  /* ── Top zone (eyebrow + title, full width) ──────────────────── */
+  .oh__top {
+    padding: var(--container-padding);
+    padding-bottom: var(--space-sm);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .oh__eyebrow {
+    font-family: var(--font-primary);
+    font-size: var(--caps);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: 0.6em;
+    will-change: opacity, transform;
+  }
+
+  .oh__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5.5vw, 7.5rem);
+    font-weight: 500;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: var(--color-text);
+    text-transform: uppercase;
+    overflow: hidden;
+    /* leave room for the absolute counter */
+    padding-right: 6rem;
+  }
+
+  /* Chars injected by JS */
+  .oh__title :global(.char) {
+    display: inline-block;
+    will-change: opacity, transform;
+  }
+
+  /* ── Sub caption (absolute, bottom-left of graphic zone) ───────── */
+  .oh__sub {
+    position: absolute;
+    bottom: var(--container-padding);
+    left: var(--container-padding);
+    z-index: 3;
+    font-family: var(--font-primary);
+    font-size: var(--paragraph-s);
+    color: var(--color-text-muted);
+    will-change: opacity;
+  }
+
+  /* ── Indicators ──────────────────────────────────────────────── */
+  .oh__indicators {
+    display: flex;
+    gap: 3px;
+    padding-inline: var(--container-padding);
+    flex-shrink: 0;
+    margin-bottom: var(--space-xs);
+    position: relative;
+    z-index: 2;
+  }
+
+  .oh__indicator {
+    flex: 1;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    padding-block: 0.6rem; /* generous hit area */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .oh__indicator-bar {
+    display: block;
+    height: 1px;
+    background-color: var(--color-border);
+    transform: scaleX(0);
+    transform-origin: left center;
+    will-change: transform, background-color;
+    transition: background-color 0.25s;
+  }
+
+  /* Active progress bar uses accent colour */
+  .oh__indicator.is-active .oh__indicator-bar {
+    background-color: var(--color-accent);
+  }
+
+  /* Non-active completed bars stay white/muted */
+  .oh__indicator.is-done .oh__indicator-bar {
+    background-color: var(--color-text-muted);
+    transform: scaleX(1);
+  }
+
+  /* Hover hint on non-active indicators */
+  .oh__indicator:not(.is-active):hover .oh__indicator-bar {
+    background-color: rgba(240, 240, 240, 0.35);
+    transform: scaleX(1);
+    transition: background-color 0.25s, transform 0s;
+  }
+
+  /* ── Graphic ─────────────────────────────────────────────────── */
+  .oh__graphic {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .oh__img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    will-change: opacity;
+  }
+
+  /* ── Reduced motion ──────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .oh__title :global(.char),
+    .oh__eyebrow,
+    .oh__sub,
+    .oh__img {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    .oh__indicator-bar {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var SLIDES = [
+      { eyebrow: 'Creative Development', title: 'BUILDING DIGITAL EXPERIENCES.', sub: 'Webflow · Shopify · Code & Motion' },
+      { eyebrow: 'Webflow Expert',        title: 'DESIGN SYSTEMS THAT SCALE.',   sub: 'Certified Webflow Partner since 2021' },
+      { eyebrow: 'Shopify Partner',       title: 'E-COMMERCE THAT CONVERTS.',    sub: 'From concept to launch — fast' },
+      { eyebrow: 'Motion & Code',         title: 'ANIMATIONS THAT SELL.',        sub: 'GSAP · ScrollTrigger · Three.js' },
+      { eyebrow: 'Brand & Identity',      title: 'STORIES WORTH TELLING.',       sub: 'Strategy · Design · Development' },
+    ];
+
+    var DURATION = 5;  /* seconds per slide */
+    var FADE     = 0.55; /* image crossfade duration */
+
+    function init() {
+      var gsap = window.gsap;
+      if (!gsap) {
+        window.addEventListener('load', init, { once: true });
+        return;
+      }
+
+      var section    = document.querySelector('.oh');
+      if (!section) return;
+
+      var imgs       = section.querySelectorAll('[data-oh-img]');
+      var indicators = section.querySelectorAll('[data-oh-indicator]');
+      var bars       = section.querySelectorAll('[data-oh-bar]');
+      var titleEl    = section.querySelector('[data-oh-title]');
+      var eyebrowEl  = section.querySelector('[data-oh-eyebrow]');
+      var subEl      = section.querySelector('[data-oh-sub]');
+      var currentEl  = section.querySelector('[data-oh-current]');
+
+      var current  = 0;
+      var total    = SLIDES.length;
+      var timer    = null;
+      var barTween = null;
+      var reduced  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* ── Word-safe char split (preserves word boundaries) ─────── */
+      function splitChars(el, text) {
+        el.innerHTML = '';
+        var chars = [];
+        var words = text.split(' ');
+        words.forEach(function (word, wi) {
+          var wSpan = document.createElement('span');
+          wSpan.style.cssText = 'display:inline-block;white-space:nowrap;';
+          word.split('').forEach(function (ch) {
+            var span = document.createElement('span');
+            span.className = 'char';
+            span.textContent = ch;
+            wSpan.appendChild(span);
+            chars.push(span);
+          });
+          el.appendChild(wSpan);
+          if (wi < words.length - 1) {
+            el.appendChild(document.createTextNode('\u00a0'));
+          }
+        });
+        return chars;
+      }
+
+      /* ── Title animation ───────────────────────────────────────── */
+      function animateTitle(text) {
+        var chars = splitChars(titleEl, text);
+        if (reduced) return;
+        gsap.from(chars, {
+          opacity: 0,
+          y: 28,
+          stagger: 0.012,
+          duration: 0.5,
+          ease: 'power2.out',
+        });
+      }
+
+      /* ── Update editorial text ─────────────────────────────────── */
+      function updateContent(idx) {
+        var d = SLIDES[idx];
+        animateTitle(d.title);
+        eyebrowEl.textContent = d.eyebrow;
+        subEl.textContent     = d.sub;
+        currentEl.textContent = String(idx + 1).padStart(2, '0');
+
+        if (!reduced) {
+          gsap.fromTo(eyebrowEl,
+            { opacity: 0, y: 5 },
+            { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
+          );
+          gsap.fromTo(subEl,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.4, ease: 'power2.out', delay: 0.12 }
+          );
+        }
+      }
+
+      /* ── Progress bar for active indicator ─────────────────────── */
+      function startBar(idx) {
+        if (barTween) barTween.kill();
+
+        /* Mark completed bars and reset the rest */
+        bars.forEach(function (b, i) {
+          var btn = indicators[i];
+          if (i < idx) {
+            btn.classList.add('is-done');
+            gsap.set(b, { scaleX: 1 });
+          } else {
+            btn.classList.remove('is-done');
+            gsap.set(b, { scaleX: 0 });
+          }
+        });
+
+        if (reduced) return;
+
+        barTween = gsap.to(bars[idx], {
+          scaleX: 1,
+          duration: DURATION,
+          ease: 'none',
+          transformOrigin: 'left center',
+        });
+      }
+
+      /* ── Slide transition ──────────────────────────────────────── */
+      function goTo(idx, fromUser) {
+        var prev = current;
+        current  = (idx + total) % total;
+
+        /* Crossfade images */
+        if (!reduced) {
+          gsap.to(imgs[prev],    { opacity: 0, duration: FADE, ease: 'power2.inOut' });
+          gsap.to(imgs[current], { opacity: 1, duration: FADE, ease: 'power2.inOut' });
+        } else {
+          imgs[prev].style.opacity    = '0';
+          imgs[current].style.opacity = '1';
+        }
+
+        /* Update indicators */
+        indicators.forEach(function (btn, i) {
+          btn.classList.toggle('is-active', i === current);
+          btn.setAttribute('aria-selected', i === current ? 'true' : 'false');
+        });
+
+        updateContent(current);
+        startBar(current);
+
+        if (fromUser) resetTimer();
+      }
+
+      /* ── Auto-advance ──────────────────────────────────────────── */
+      function resetTimer() {
+        if (timer) clearTimeout(timer);
+        if (reduced) return;
+        timer = setTimeout(function () { goTo(current + 1); }, DURATION * 1000);
+      }
+
+      /* ── Indicator events (hover + click) ──────────────────────── */
+      indicators.forEach(function (btn) {
+        btn.addEventListener('mouseenter', function () {
+          var idx = parseInt(btn.getAttribute('data-oh-indicator'), 10);
+          if (idx !== current) goTo(idx, true);
+        });
+        btn.addEventListener('click', function () {
+          var idx = parseInt(btn.getAttribute('data-oh-indicator'), 10);
+          if (idx !== current) goTo(idx, true);
+        });
+      });
+
+      /* ── Bootstrap ─────────────────────────────────────────────── */
+      /* GSAP owns all image opacities from this point on */
+      gsap.set(imgs, { opacity: 0 });
+      gsap.set(imgs[0], { opacity: 1 });
+
+      animateTitle(SLIDES[0].title);
+
+      if (!reduced) {
+        gsap.from(eyebrowEl, { opacity: 0, y: 5, duration: 0.5, ease: 'power2.out', delay: 0.2 });
+        gsap.from(subEl,     { opacity: 0,       duration: 0.4, ease: 'power2.out', delay: 0.4 });
+      }
+
+      startBar(0);
+      resetTimer();
+    }
+
+    init();
+  })();
+</script>

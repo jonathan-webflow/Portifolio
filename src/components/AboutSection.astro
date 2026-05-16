@@ -1,0 +1,412 @@
+---
+/**
+ * AboutSection.astro — Pinned horizontal word-reveal (inspired by MWG_004)
+ *
+ * Comportamento:
+ *   • .about__container é pinado durante 500vh de rolagem (ScrollTrigger)
+ *   • Cada palavra do parágrafo é envolvida em um <span class="word">
+ *   • As palavras são agrupadas por linha (offsetTop) e animam de
+ *     x: (100vw - padding) → 0, com stagger por palavra e scrub suave
+ *   • O hint "Scroll" aparece apenas no início e desaparece ao começar
+ *
+ * Integração com o Design System do projeto:
+ *   • Fontes: var(--font-primary) (Rethink Sans) e monospace system stack
+ *   • Cores:  var(--color-bg) / var(--color-text) / var(--color-text-muted)
+ *   • GSAP + ScrollTrigger + Lenis já são carregados em Layout.astro
+ *     (não re-inicializamos Lenis aqui — apenas consumimos window.gsap)
+ *
+ * Props:
+ *   eyebrow   — rótulo superior-esquerdo
+ *   metaTitle — título da obra (primeira linha do bloco direito)
+ *   metaLines — linhas adicionais (ano, técnica, coleção…)
+ *   image     — caminho da imagem de capa
+ *   imageAlt  — texto alternativo da imagem
+ *   paragraph — texto principal animado
+ */
+
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import portraitDefault from '../assets/images/about/jonathan.rocha.png';
+
+interface Props {
+  eyebrow?: string;
+  metaLines?: string[];
+  image?: ImageMetadata;
+  imageAlt?: string;
+  paragraph?: string;
+}
+
+const {
+  eyebrow = 'About Jonathan Rocha',
+  metaLines = ['Certified Webflow', 'Creative Developer', 'Shopify Partner'],
+  image = portraitDefault,
+  imageAlt = 'Jonathan Rocha — Creative Developer',
+  paragraph = 'Jonathan Rocha is a Creative Developer, Webflow Certified Expert and Shopify Partner who lives at the intersection of design and code. Based in Brazil, building for the world — he crafts digital experiences that feel different, convert better, and leave brands impossible to forget.',
+} = Astro.props;
+---
+
+<section class="about-section" aria-label="About">
+  <p class="about-section__scroll-hint" aria-hidden="true">Scroll</p>
+
+  <div class="about-section__pin">
+    <div class="about-section__container">
+      <header class="about-section__header">
+        <p class="about-section__eyebrow">{eyebrow}</p>
+
+        <div class="about-section__meta">
+          <p class="about-section__meta-text">
+            {metaLines.map((line, i) => (
+              <>
+                {i > 0 && <br />}{line}
+              </>
+            ))}
+          </p>
+          <Image
+            class="about-section__image"
+            src={image}
+            alt={imageAlt}
+            width={image.width}
+            height={image.height}
+            loading="lazy"
+            decoding="async"
+            format="webp"
+          />
+        </div>
+      </header>
+
+      <p class="about-section__paragraph" data-about-paragraph>
+        {paragraph}
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     AboutSection — escopado pelo Astro
+     ============================================================ */
+  .about-section {
+    position: relative;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-primary);
+    /* Respiro vertical entre as seções vizinhas (Hero / Projects) */
+    padding-block: 2em;
+  }
+
+  /* Hint "Scroll" centralizado — desaparece ao entrar na seção */
+  .about-section__scroll-hint {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: var(--caps);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    pointer-events: none;
+    z-index: var(--z-above);
+    will-change: opacity, visibility;
+  }
+
+  /* 350vh reservados para a rolagem que movimenta o container pinado */
+  .about-section__pin {
+    height: 350vh;
+  }
+
+  .about-section__container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-inline: var(--container-padding);
+    overflow: hidden;
+  }
+
+  /* --- Header --------------------------------------------------- */
+  .about-section__header {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-md);
+    top: var(--space-sm);
+    left: var(--container-padding);
+    right: var(--container-padding);
+  }
+
+  .about-section__eyebrow {
+    font-size: clamp(0.75rem, 1.2vw, 1rem);
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    color: var(--color-text);
+  }
+
+  .about-section__meta {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    text-align: right;
+  }
+
+  .about-section__meta-text {
+    /* Stack monospace com fallback robusto; substitui IBM Plex Mono */
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+    line-height: 1.15;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .about-section__image {
+    border-radius: 0.25em;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    /* global.css define img { max-width: 100% }. O <Image> do Astro injeta width/height
+       em pixels; sem largura explícita aqui o flex + max-width distorce a caixa. */
+    max-width: none;
+    width: clamp(48px, 4.6vw, 80px);
+    height: clamp(48px, 4.6vw, 80px);
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+  /* --- Parágrafo animado --------------------------------------- */
+  .about-section__paragraph {
+    width: 60%;
+    font-family: var(--font-primary);
+    font-weight: 500;
+    font-size: clamp(1.875rem, 3.9vw, 5.25rem);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: var(--color-text);
+  }
+
+  /* Cada palavra é um span injetado via JS — estado inicial fora da viewport.
+     O offset horizontal é ajustado em tempo real pelo JS via CSS variable
+     para respeitar o padding do container. will-change só aqui (elemento
+     animado), preservando memória em tudo que não se move. */
+  .about-section__paragraph :global(.word) {
+    display: inline-block;
+    transform: translate3d(var(--word-offset, 100vw), 0, 0);
+    will-change: transform;
+  }
+
+  /* --- Responsivo ---------------------------------------------- */
+  @media (max-width: 900px) {
+    .about-section__header {
+      display: block;
+    }
+    .about-section__meta {
+      justify-content: flex-start;
+      margin-top: var(--space-xs);
+      text-align: left;
+    }
+    .about-section__meta-text {
+      order: 2;
+      text-align: left;
+    }
+    .about-section__image {
+      order: 1;
+      width: 58px;
+      height: 58px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .about-section__header {
+      top: var(--space-xs);
+    }
+  }
+
+  @media (max-width: 500px) {
+    .about-section__container {
+      align-items: flex-end;
+      padding-bottom: var(--space-lg);
+    }
+    .about-section__paragraph {
+      width: 100%;
+    }
+  }
+
+  /* Respeita usuários que preferem menos movimento */
+  @media (prefers-reduced-motion: reduce) {
+    .about-section__pin {
+      height: auto;
+    }
+    .about-section__container {
+      height: auto;
+      padding-block: var(--space-xl);
+      overflow: visible;
+    }
+    .about-section__paragraph :global(.word) {
+      transform: none !important;
+    }
+    .about-section__scroll-hint {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // AboutSection — pin + word-by-line reveal (GSAP ScrollTrigger)
+  //
+  // GSAP, ScrollTrigger e Lenis já foram carregados e expostos em
+  // window pelo Layout.astro. Aqui apenas consumimos.
+  //
+  // Passos:
+  //   1. Esperar GSAP disponível (fallback: re-tentar no load)
+  //   2. Esperar document.fonts.ready (offsetTop depende das métricas reais)
+  //   3. Quebrar o parágrafo em <span class="word"> (idempotente)
+  //   4. Pin do container durante 500vh
+  //   5. Agrupar palavras por linha (offsetTop) e animar x → 0 com scrub
+  //   6. Refresh ao resize para recalcular linhas/posições
+  // ============================================================
+
+  type Gsap = any;
+  type ScrollTriggerLib = any;
+
+  function initAboutSection(): void {
+    const gsap = (window as any).gsap as Gsap | undefined;
+    const ScrollTrigger = (window as any).ScrollTrigger as ScrollTriggerLib | undefined;
+
+    if (!gsap || !ScrollTrigger) {
+      // Tenta novamente após todo o load (GSAP é carregado com defer)
+      window.addEventListener('load', initAboutSection, { once: true });
+      return;
+    }
+
+    const section = document.querySelector<HTMLElement>('.about-section');
+    if (!section) return;
+
+    const pinHeight = section.querySelector<HTMLElement>('.about-section__pin');
+    const container = section.querySelector<HTMLElement>('.about-section__container');
+    const paragraph = section.querySelector<HTMLElement>('[data-about-paragraph]');
+    const scrollHint = section.querySelector<HTMLElement>('.about-section__scroll-hint');
+
+    if (!pinHeight || !container || !paragraph) return;
+
+    // Prevenção contra duplo-init (HMR/dev)
+    if (section.dataset.aboutInitialized === 'true') return;
+    section.dataset.aboutInitialized = 'true';
+
+    // Aguarda métricas de fonte reais antes de medir offsetTop
+    const ready = (document as any).fonts?.ready ?? Promise.resolve();
+
+    ready.then(() => {
+      wrapWordsInSpan(paragraph);
+      setWordOffset(container);
+
+      // --- 1) Scroll hint fade-out ao entrar na área pinada -----
+      if (scrollHint) {
+        gsap.to(scrollHint, {
+          autoAlpha: 0,
+          duration: 0.2,
+          scrollTrigger: {
+            trigger: pinHeight,
+            start: 'top top',
+            end: 'top top-=1',
+            toggleActions: 'play none reverse none',
+          },
+        });
+      }
+
+      // --- 2) Pin do container durante 500vh --------------------
+      ScrollTrigger.create({
+        trigger: pinHeight,
+        start: 'top top',
+        end: 'bottom bottom',
+        pin: container,
+        // Evita jitter quando combinado com Lenis
+        anticipatePin: 1,
+      });
+
+      // --- 3) Agrupa palavras por linha (offsetTop) -------------
+      const words = Array.from(
+        paragraph.querySelectorAll<HTMLElement>('.word')
+      );
+
+      const lines = groupWordsByLine(words);
+
+      // --- 4) Anima cada linha com stagger + scrub fluido -------
+      // Usa o mesmo elemento do pin como trigger para manter sync
+      // — o padding externo da section fica como respiro neutro.
+      lines.forEach((lineWords) => {
+        gsap.to(lineWords, {
+          x: 0,
+          stagger: 0.2,
+          ease: 'power1.inOut',
+          scrollTrigger: {
+            trigger: pinHeight,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1.5,
+            invalidateOnRefresh: true,
+          },
+        });
+      });
+
+      // --- 5) Recalcula offset/linhas quando a viewport muda ----
+      let resizeTimer: number | undefined;
+      window.addEventListener('resize', () => {
+        if (resizeTimer) window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+          setWordOffset(container);
+          ScrollTrigger.refresh();
+        }, 150);
+      });
+    });
+  }
+
+  /**
+   * Envolve cada palavra do texto em um <span class="word">, preservando
+   * espaços. Idempotente: se já houver spans, sai.
+   */
+  function wrapWordsInSpan(element: HTMLElement): void {
+    if (element.querySelector('.word')) return;
+    const text = element.textContent ?? '';
+    element.innerHTML = text
+      .trim()
+      .split(/\s+/)
+      .map((word) => `<span class="word">${word}</span>`)
+      .join(' ');
+  }
+
+  /**
+   * Define --word-offset no container para que as palavras comecem
+   * exatamente na borda direita da área visível (respeitando o padding).
+   */
+  function setWordOffset(container: HTMLElement): void {
+    const paddingRight = parseFloat(
+      getComputedStyle(container).paddingRight || '0'
+    );
+    container.style.setProperty(
+      '--word-offset',
+      `calc(100vw - ${paddingRight}px)`
+    );
+  }
+
+  /**
+   * Agrupa <span class="word"> em linhas com base no offsetTop de cada
+   * palavra. Palavras com o mesmo offsetTop pertencem à mesma linha.
+   */
+  function groupWordsByLine(words: HTMLElement[]): HTMLElement[][] {
+    const lines: HTMLElement[][] = [[]];
+    let lineIndex = 0;
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const offsetTop = word.offsetTop;
+
+      if (i > 0 && offsetTop !== words[i - 1].offsetTop) {
+        lines.push([]);
+        lineIndex++;
+      }
+      lines[lineIndex].push(word);
+    }
+    return lines;
+  }
+
+  initAboutSection();
+</script>

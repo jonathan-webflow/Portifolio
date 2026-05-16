@@ -1,0 +1,77 @@
+---
+---
+
+<section id="loader" aria-hidden="true">
+  <h1 id="loader__text">Initializing</h1>
+</section>
+
+<script>
+  function initLoader() {
+    const gsap = (window as any).gsap;
+    const SplitText = (window as any).SplitText;
+    if (!gsap || !SplitText) {
+      window.addEventListener('load', initLoader, { once: true });
+      return;
+    }
+
+    const section = document.getElementById('loader');
+    const heading = document.getElementById('loader__text');
+    if (!section || !heading) return;
+
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      section.style.display = 'none';
+      window.dispatchEvent(new CustomEvent('loader:complete'));
+      return;
+    }
+
+    const split = new SplitText(heading, { type: 'chars', charsClass: 'loader__char' });
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        section.style.display = 'none';
+        window.dispatchEvent(new CustomEvent('loader:complete'));
+      },
+    });
+
+    tl.to(split.chars, {
+      color: 'var(--color-accent)',
+      textShadow: '0 0 10px rgba(255,0,0,0.7), 0 0 20px rgba(255,0,0,0.5)',
+      filter: 'blur(5px)',
+      stagger: { each: 0.08, from: 'left' },
+      ease: 'power2.inOut',
+    }).to(
+      section,
+      {
+        filter: 'blur(500px)',
+        opacity: 0,
+        duration: 0.9,
+        ease: 'power2.in',
+      },
+      'exit'
+    );
+  }
+
+  initLoader();
+</script>
+
+<style>
+  #loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  #loader__text {
+    font-family: var(--font-display);
+    font-size: var(--h1);
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+  }
+</style>

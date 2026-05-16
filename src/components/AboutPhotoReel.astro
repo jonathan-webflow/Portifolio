@@ -1,0 +1,155 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import paintingFallback from '../assets/images/about/painting.jpg';
+
+interface Props {
+  photoCount?: number;
+}
+
+const { photoCount = 6 } = Astro.props;
+
+const photoMods = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/images/about/photos/*.jpg',
+  { eager: true }
+);
+const sortPaths = (a: string, b: string) => a.localeCompare(b, undefined, { numeric: true });
+const reelKeys = Object.keys(photoMods).sort(sortPaths);
+const photos: ImageMetadata[] = reelKeys.length
+  ? reelKeys.map((k) => photoMods[k]!.default)
+  : Array.from({ length: photoCount }, () => paintingFallback);
+---
+
+<div class="photo-reel" aria-hidden="true">
+  <div class="photo-reel__stage">
+    {photos.map((src) => (
+      <Image
+        class="photo-reel__img"
+        src={src}
+        alt=""
+        width={src.width}
+        height={src.height}
+        loading="lazy"
+        draggable={false}
+        format="webp"
+      />
+    ))}
+  </div>
+</div>
+
+<script>
+  function initPhotoReel() {
+    const gsap = (window as any).gsap;
+    const ScrollTrigger = (window as any).ScrollTrigger;
+    if (!gsap || !ScrollTrigger) {
+      window.addEventListener('load', initPhotoReel, { once: true });
+      return;
+    }
+
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const stage = document.querySelector<HTMLElement>('.photo-reel__stage');
+    const photos = document.querySelectorAll<HTMLElement>('.photo-reel__img');
+    const pinTrigger = document.querySelector('.about-section__pin');
+
+    if (!stage || !photos.length || !pinTrigger) return;
+
+    const count = photos.length;
+
+    // Gerados uma vez — não mudam no resize (apenas x recalcula via função)
+    const meta = Array.from({ length: count }, () => ({
+      yPercent: (Math.random() - 0.5) * 60,
+      rotation: (Math.random() - 0.5) * 35,
+      scale: 0.85 + Math.random() * 0.35,
+    }));
+
+    ScrollTrigger.create({
+      trigger: pinTrigger,
+      start: 'top top',
+      end: 'bottom bottom',
+      pin: stage,
+      pinSpacing: false,
+      anticipatePin: 1,
+    });
+
+    const segDuration = 3;
+    const overlap = 0.6;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: pinTrigger,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 2,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    photos.forEach((photo, i) => {
+      const { yPercent, rotation, scale } = meta[i];
+
+      tl.fromTo(
+        photo,
+        {
+          x: () => window.innerWidth * 1.2,
+          yPercent,
+          rotation,
+          scale,
+        },
+        {
+          x: () => -window.innerWidth * 1.2,
+          ease: 'none',
+          duration: segDuration,
+          invalidateOnRefresh: true,
+        },
+        i * segDuration * overlap
+      );
+    });
+  }
+
+  initPhotoReel();
+</script>
+
+<style>
+  .photo-reel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+    overflow: hidden;
+  }
+
+  .photo-reel__stage {
+    width: 100%;
+    height: 100svh;
+    position: relative;
+    overflow: visible;
+  }
+
+  .photo-reel__img {
+    position: absolute;
+    width: clamp(180px, 22vw, 360px);
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 2px;
+    top: 50%;
+    left: 50%;
+    will-change: transform;
+    user-select: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .photo-reel {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .photo-reel__img {
+      width: clamp(120px, 40vw, 200px);
+    }
+  }
+</style>

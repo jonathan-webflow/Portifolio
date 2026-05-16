@@ -1,0 +1,350 @@
+---
+import '../styles/global.css';
+import '../styles/scramble.css';
+import CursorScramble from '../components/CursorScramble.astro';
+import Loader from '../components/Loader.astro';
+
+/**
+ * Layout.astro — Shell global do Portfolio2026
+ *
+ * GSAP carregado via CDN (jsDelivr) no <head>:
+ *   • gsap core
+ *   • ScrollTrigger
+ *   • ScrollSmoother  (gratuito desde a aquisição da GSAP pela Webflow, 2025)
+ *   • CustomEase
+ *
+ * Smooth scroll:
+ *   • ScrollSmoother gerencia #smooth-wrapper / #smooth-content
+ *   • Sincroniza automaticamente com ScrollTrigger (sem proxy manual)
+ */
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = 'Portfolio — Creative Developer & Designer',
+  ogImage = '/og-default.jpg',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Preconnect para CDNs -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+
+    <!-- ============================================================
+         Google Fonts
+         • Archivo Narrow → headings (display)
+         • Rethink Sans   → corpo e UI (primary)
+         display=swap evita FOIT; preconnect acelera o handshake
+         ============================================================ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Rethink+Sans:wght@400;500;600;700;800&display=swap"
+    />
+
+    <!-- ============================================================
+         GSAP via CDN (jsDelivr) — carregar antes do body render
+         Usar defer para não bloquear o parser HTML
+         ============================================================ -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollSmoother.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/gsap@3/dist/CustomEase.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrambleTextPlugin.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/gsap@3/dist/SplitText.min.js"
+      defer
+    ></script>
+
+    <!-- Estilos globais injetados via frontmatter import acima -->
+  </head>
+
+  <body>
+    <Loader />
+
+    <!-- ============================================================
+         Estrutura de wrappers para smooth scroll
+         Compatível com ScrollSmoother (GSAP Club) e Lenis
+         - #smooth-wrapper → overflow: hidden, position: fixed
+         - #smooth-content → conteúdo real que será transladado
+         ============================================================ -->
+    <CursorScramble />
+
+    <div id="smooth-wrapper">
+      <div id="smooth-content">
+        <slot />
+      </div>
+    </div>
+
+    <!-- ============================================================
+         Script de inicialização GSAP
+         Inline para evitar flash de conteúdo não animado (FOUC)
+         As animações de scroll são configuradas no arquivo separado
+         ============================================================ -->
+    <script>
+      // Aguarda GSAP carregar via defer antes de inicializar
+      window.addEventListener('load', () => {
+        // @ts-ignore — GSAP é carregado via CDN global
+        const { gsap, ScrollTrigger, ScrollSmoother, CustomEase, ScrambleTextPlugin, SplitText } = window as any;
+
+        if (!gsap || !ScrollTrigger) {
+          console.warn('[GSAP] Core ou ScrollTrigger não encontrado. Verifique o CDN.');
+          return;
+        }
+
+        // --- Registrar plugins ---
+        gsap.registerPlugin(ScrollTrigger, CustomEase, ScrollSmoother, ScrambleTextPlugin, SplitText);
+
+        // --- CustomEase: easings de alta qualidade ---
+        CustomEase.create('expo.out', 'M0,0 C0.16,1 0.3,1 1,1');
+        CustomEase.create('expo.in', 'M0,0 C0.7,0 0.84,0 1,1');
+        CustomEase.create('expo.inOut', 'M0,0 C0.87,0 0.13,1 1,1');
+        CustomEase.create('quart.out', 'M0,0 C0.25,1 0.5,1 1,1');
+
+        // ============================================================
+        // ScrollSmoother — smooth scroll + sync nativo com ScrollTrigger
+        // (gratuito desde a aquisição da GSAP pela Webflow em 2025)
+        // ============================================================
+        if (ScrollSmoother) {
+          const smoother = ScrollSmoother.create({
+            wrapper: '#smooth-wrapper',
+            content: '#smooth-content',
+            smooth: 1.2,            // segundos de "catch-up" do scroll
+            effects: true,          // habilita data-speed e data-lag nos filhos
+            normalizeScroll: true,  // fix mobile bounce / iOS address bar
+            smoothTouch: 0.1,       // suaviza levemente em touch (mais responsivo)
+          });
+
+          // Expor instância globalmente para componentes filhos
+          (window as any).__smoother = smoother;
+        } else {
+          console.warn('[GSAP] ScrollSmoother não encontrado. Verifique o CDN.');
+        }
+
+        // --- ScrollTrigger defaults ---
+        ScrollTrigger.defaults({
+          markers: false, // setar true durante desenvolvimento
+        });
+
+        // --- Expor gsap globalmente para scripts de componentes ---
+        (window as any).__gsap = gsap;
+        (window as any).__ScrollTrigger = ScrollTrigger;
+      });
+    </script>
+    <!-- ============================================================
+         Scramble Text System — Valientebrands-style
+         Dois modos: scroll-into-view + hover
+         Depende de GSAP + ScrambleTextPlugin (registrados acima)
+         ============================================================ -->
+    <script is:inline>
+      (function () {
+        /* ── breakTextIntoLines: mede e divide texto em linhas reais ── */
+        function breakTextIntoLines(el) {
+          var text = el.textContent.trim();
+          if (!text) return;
+
+          var words = text.split(/\s+/);
+          var parent = el.parentElement || el;
+          var containerWidth = parent.clientWidth;
+          var computedStyle = getComputedStyle(el);
+
+          /* Measurer oculto para calcular largura real de cada acumulação de palavras */
+          var measurer = document.createElement('span');
+          measurer.style.cssText =
+            'visibility:hidden;white-space:nowrap;position:absolute;top:-9999px;left:0;' +
+            'font:' + computedStyle.font + ';' +
+            'letter-spacing:' + computedStyle.letterSpacing + ';' +
+            'text-transform:' + computedStyle.textTransform + ';';
+          document.body.appendChild(measurer);
+
+          var lines = [];
+          var currentLine = [];
+
+          words.forEach(function (word) {
+            var testLine = currentLine.concat(word);
+            measurer.textContent = testLine.join(' ');
+            if (measurer.offsetWidth > containerWidth && currentLine.length > 0) {
+              lines.push(currentLine.join(' '));
+              currentLine = [word];
+            } else {
+              currentLine.push(word);
+            }
+          });
+          if (currentLine.length) lines.push(currentLine.join(' '));
+
+          document.body.removeChild(measurer);
+
+          /* Delay escalonado baseado no nro de linhas */
+          var lineCount = lines.length;
+          var delayBase = lineCount > 10 ? 0.7 / lineCount : 0.1;
+          el.style.setProperty('--delay', delayBase + 's');
+
+          /* Reconstrói HTML: .line > .text > .word */
+          el.innerHTML = lines
+            .map(function (lineText) {
+              var wordsHtml = lineText
+                .split(' ')
+                .map(function (w, wi) {
+                  return '<span class="word' + (wi > 0 ? ' left-space' : '') + '">' + w + '</span>';
+                })
+                .join('');
+              return '<div class="line"><span class="text">' + wordsHtml + '</span></div>';
+            })
+            .join('');
+        }
+
+        /* ── initScrollScramble: observer + GSAP scramble por linha ── */
+        function initScrollScramble(el) {
+          var gsap = window.gsap;
+          var scrambleReady = !!window.ScrambleTextPlugin;
+
+          var observer = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                if (entry.target.classList.contains('show')) return;
+
+                entry.target.classList.add('show');
+
+                /* Scramble cada linha com delay escalonado */
+                if (gsap && scrambleReady) {
+                  var lines = entry.target.querySelectorAll('.line .text');
+                  var lineCount = lines.length;
+                  var delayMul = lineCount > 10 ? 0.7 / lineCount : 0.1;
+
+                  lines.forEach(function (lineEl, index) {
+                    var originalText = lineEl.textContent;
+                    gsap.to(lineEl, {
+                      scrambleText: {
+                        text: originalText,
+                        chars: 'upperCase',
+                        tweenLength: false,
+                        speed: 0.6,
+                      },
+                      duration: 1.6,
+                      delay: index * delayMul,
+                      ease: 'power2.inOut',
+                    });
+                  });
+                }
+
+                observer.unobserve(entry.target);
+              });
+            },
+            { threshold: 0.15 }
+          );
+
+          observer.observe(el);
+        }
+
+        /* ── initHoverScramble: mouseenter scramble em links ────────── */
+        function initHoverScramble(el) {
+          var gsap = window.gsap;
+          if (!gsap || !window.ScrambleTextPlugin) return;
+
+          var targetText = el.getAttribute('data-scramble-text') || el.textContent.trim();
+          var tween = null;
+
+          el.addEventListener('mouseenter', function () {
+            if (tween) tween.kill();
+            tween = gsap.to(el, {
+              scrambleText: {
+                text: targetText,
+                chars: 'upperCase',
+                tweenLength: false,
+                speed: 0.8,
+              },
+              duration: 0.8,
+              ease: 'power2.inOut',
+            });
+          });
+        }
+
+        /* ── Master init: roda após GSAP estar pronto ──────────────── */
+        function initScrambleSystem() {
+          var gsap = window.gsap;
+          if (!gsap || !window.ScrambleTextPlugin) {
+            window.addEventListener('load', initScrambleSystem, { once: true });
+            return;
+          }
+
+          gsap.registerPlugin(window.ScrambleTextPlugin);
+
+          /* Scroll-into-view: [data-scramble] com classe .smart-text */
+          document.querySelectorAll('.smart-text[data-scramble]').forEach(function (el) {
+            breakTextIntoLines(el);
+            initScrollScramble(el);
+          });
+
+          /* Hover: [data-scramble-hover] */
+          document.querySelectorAll('[data-scramble-hover]').forEach(function (el) {
+            initHoverScramble(el);
+          });
+
+          /* Resize: recalcula linhas (debounced) */
+          var resizeTimer;
+          window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+              document.querySelectorAll('.smart-text[data-scramble].show').forEach(function (el) {
+                breakTextIntoLines(el);
+              });
+            }, 300);
+          });
+        }
+
+        initScrambleSystem();
+      })();
+    </script>
+  </body>
+</html>

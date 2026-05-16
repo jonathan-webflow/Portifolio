@@ -1,0 +1,121 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import AboutSection from '../components/AboutSection.astro';
+import HistorySection from '../components/HistorySection.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import RecentWorksSlider from '../components/RecentWorksSlider.astro';
+import TechStack from '../components/TechStack.astro';
+import ContactSection from '../components/ContactSection.astro';
+import { getCollection } from 'astro:content';
+
+const allProjects = await getCollection('projects', ({ data }) => !data.draft);
+const projects = allProjects.sort((a, b) => a.data.order - b.data.order);
+
+const featuredProjects = projects.filter((p) => p.data.featured);
+const otherProjects = projects.filter((p) => !p.data.featured);
+---
+
+<Layout title="Portfolio — Creative Developer" description="Portfólio de design e desenvolvimento criativo.">
+
+  <Hero />
+
+  <AboutSection />
+
+  <HistorySection />
+
+  <RecentWorksSlider />
+
+  <TechStack />
+
+  {featuredProjects.length > 0 && (
+    <section class="section" aria-labelledby="featured-heading">
+      <div class="container">
+        <h2 class="section-label" id="featured-heading" data-reveal>Selected Work</h2>
+        <div class="projects-grid projects-grid--featured">
+          {featuredProjects.map((project, i) => (
+            <ProjectCard entry={project} index={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {otherProjects.length > 0 && (
+    <section class="section" aria-labelledby="all-heading">
+      <div class="container">
+        <h2 class="section-label" id="all-heading" data-reveal>All Projects</h2>
+        <div class="projects-grid">
+          {otherProjects.map((project, i) => (
+            <ProjectCard entry={project} index={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {projects.length === 0 && (
+    <section class="section">
+      <div class="container">
+        <p class="empty-state__text">
+          Nenhum projeto publicado ainda. Adicione arquivos <code>.md</code> em{' '}
+          <code>src/content/projects/</code>
+        </p>
+      </div>
+    </section>
+  )}
+
+  <ContactSection
+    copyrightName="Jonathan Rocha"
+    calLink="#"
+    github="#"
+    instagram="#"
+    linkedin="#"
+    dribbble="#"
+  />
+
+</Layout>
+
+<style>
+  .section {
+    padding-block: var(--space-lg);
+  }
+
+  .section-label {
+    font-size: var(--caps);
+    letter-spacing: 0.01em;
+    line-height: 1.0;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .projects-grid--featured {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+  }
+
+  .empty-state__text {
+    color: var(--color-text-muted);
+    font-size: var(--paragraph-s);
+  }
+
+  .empty-state__text code {
+    font-family: monospace;
+    background-color: var(--color-bg-alt);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+
+</style>

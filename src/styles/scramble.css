@@ -1,0 +1,156 @@
+/* ══════════════════════════════════════════════════════════════
+   scramble.css — Valientebrands-style scramble text effects
+   Dois modos:
+     1. [data-scramble]     → scroll-into-view (line slide-up + scramble)
+     2. [data-scramble-hover] → hover scramble no texto
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Container principal ──────────────────────────────────── */
+.smart-text,
+.smart-text > * {
+  font-weight: inherit;
+  margin: 0;
+  text-align: inherit;
+  text-decoration: inherit;
+}
+
+.smart-text > * {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* ── Cada linha: bloco com overflow clip (máscara para slide-up) ─ */
+.smart-text .line {
+  display: block;
+  font-weight: inherit;
+  overflow-y: clip;
+}
+
+/* ── Texto dentro de cada linha ───────────────────────────── */
+.smart-text .line .text {
+  display: inline-block;
+  font-weight: inherit;
+  white-space: nowrap;
+  will-change: transform;
+  position: relative;
+  top: -0.02em;
+}
+
+/* ── Palavras inline ──────────────────────────────────────── */
+.smart-text .line .word {
+  display: inline-block;
+}
+
+.smart-text .line .word:not(:last-child).right-space {
+  padding-right: 0.25em;
+}
+
+.smart-text .line .word:not(:first-child).left-space {
+  padding-left: 0.25em;
+}
+
+/* ── Espaços animados pós-scramble ────────────────────────── */
+.smart-text .line .scrambled-space {
+  display: inline-block;
+  transition: width 1s cubic-bezier(0.6, 0.14, 0, 1);
+  width: 0;
+}
+
+.smart-text .line .scrambled .scrambled-space {
+  width: 0.25em;
+}
+
+/* ── Headings (não-body): crop de linha preciso.
+   height herda o line-height do parent para um crop fiel ao tipo. */
+.smart-text:not(.is-body) .line {
+  height: 1em;
+  overflow: clip;
+}
+
+.smart-text:not(.is-body) .line:not(:last-child) {
+  margin-bottom: -0.1em;
+}
+
+/* ── Scroll-Into-View: estado inicial (oculto + deslocado) ─ */
+.smart-text[data-scramble]:not(.show) .line {
+  transform: translateY(80%);
+}
+
+.smart-text[data-scramble]:not(.show) .text {
+  transform: translateY(140%);
+}
+
+/* ── Scroll-Into-View: transição ao entrar no viewport ───── */
+.smart-text[data-scramble] .line,
+.smart-text[data-scramble] .text {
+  transition: transform 2s cubic-bezier(0.65, 0.2, 0, 1);
+}
+
+/* Estado ativo: reseta transforms */
+.smart-text[data-scramble].show .line,
+.smart-text[data-scramble].show .text {
+  transform: translateY(0);
+}
+
+/* ── Delays escalonados por linha (via --delay CSS var) ───── */
+.smart-text[data-scramble] .line:nth-child(1),
+.smart-text[data-scramble] .line:nth-child(1) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 1);
+}
+.smart-text[data-scramble] .line:nth-child(2),
+.smart-text[data-scramble] .line:nth-child(2) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 2);
+}
+.smart-text[data-scramble] .line:nth-child(3),
+.smart-text[data-scramble] .line:nth-child(3) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 3);
+}
+.smart-text[data-scramble] .line:nth-child(4),
+.smart-text[data-scramble] .line:nth-child(4) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 4);
+}
+.smart-text[data-scramble] .line:nth-child(5),
+.smart-text[data-scramble] .line:nth-child(5) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 5);
+}
+.smart-text[data-scramble] .line:nth-child(6),
+.smart-text[data-scramble] .line:nth-child(6) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 6);
+}
+.smart-text[data-scramble] .line:nth-child(7),
+.smart-text[data-scramble] .line:nth-child(7) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 7);
+}
+.smart-text[data-scramble] .line:nth-child(8),
+.smart-text[data-scramble] .line:nth-child(8) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 8);
+}
+.smart-text[data-scramble] .line:nth-child(9),
+.smart-text[data-scramble] .line:nth-child(9) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 9);
+}
+.smart-text[data-scramble] .line:nth-child(10),
+.smart-text[data-scramble] .line:nth-child(10) .text {
+  transition-delay: calc(var(--delay, 0.1s) * 10);
+}
+
+/* ── Hover scramble: links/buttons ────────────────────────── */
+[data-scramble-hover] {
+  cursor: pointer;
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .smart-text[data-scramble] .line,
+  .smart-text[data-scramble] .text {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .smart-text[data-scramble]:not(.show) .line,
+  .smart-text[data-scramble]:not(.show) .text {
+    transform: none !important;
+  }
+}

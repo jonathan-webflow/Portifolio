@@ -32,6 +32,9 @@ const socials = [
 
   <div class="contact-section__inner">
 
+    <canvas class="contact-section__canvas contact-section__canvas--base"  aria-hidden="true"></canvas>
+    <canvas class="contact-section__canvas contact-section__canvas--bloom" aria-hidden="true"></canvas>
+
     <div class="contact-section__letter contact-section__letter--j" aria-hidden="true">J</div>
 
     {socials.length > 0 && (
@@ -66,47 +69,7 @@ const socials = [
       </nav>
     )}
 
-    <span class="contact-section__binary contact-section__binary--left" aria-hidden="true">
-      0101010101
-    </span>
-
-    <div class="contact-section__center">
-      <p class="contact-section__headline">Let's work together</p>
-
-      <a
-        href={calLink}
-        class="contact-section__cta"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Schedule a call (opens in new tab)"
-      >
-        <svg class="contact-section__corner contact-section__corner--tl" viewBox="0 0 7 7" width="7" height="7" fill="none" aria-hidden="true">
-          <path d="M1 7V1H7" stroke="currentColor"/>
-        </svg>
-        <svg class="contact-section__corner contact-section__corner--tr" viewBox="0 0 7 7" width="7" height="7" fill="none" aria-hidden="true">
-          <path d="M6 7V1H0" stroke="currentColor"/>
-        </svg>
-
-        <span class="contact-section__cta-text">
-          <span class="contact-section__cta-original">Schedule a call</span>
-          <span class="contact-section__cta-duplicate" aria-hidden="true">Schedule a call</span>
-        </span>
-
-        <svg class="contact-section__corner contact-section__corner--bl" viewBox="0 0 7 7" width="7" height="7" fill="none" aria-hidden="true">
-          <path d="M1 0V6H7" stroke="currentColor"/>
-        </svg>
-        <svg class="contact-section__corner contact-section__corner--br" viewBox="0 0 7 7" width="7" height="7" fill="none" aria-hidden="true">
-          <path d="M6 0V6H0" stroke="currentColor"/>
-        </svg>
-      </a>
-    </div>
-
-    <span class="contact-section__binary contact-section__binary--right" aria-hidden="true">
-      0101010101
-    </span>
-
-    <p class="contact-section__copyright">© Copyright {year} {copyrightName}</p>
-    <p class="contact-section__rights">All rights reserved</p>
+    <p class="contact-section__copyright">© Copyright {year} {copyrightName} — All rights reserved</p>
 
     <div class="contact-section__letter contact-section__letter--r" aria-hidden="true">R</div>
 
@@ -172,6 +135,276 @@ const socials = [
   initContactSection();
 </script>
 
+<script>
+  function initContactCanvas(): void {
+    const gsap = (window as any).gsap;
+    if (!gsap) { window.addEventListener('load', initContactCanvas, { once: true }); return; }
+
+    const inner = document.querySelector<HTMLElement>('.contact-section__inner');
+    if (!inner || inner.dataset.canvasInitialized === 'true') return;
+    inner.dataset.canvasInitialized = 'true';
+
+    const baseCanvas  = inner.querySelector<HTMLCanvasElement>('.contact-section__canvas--base')!;
+    const bloomCanvas = inner.querySelector<HTMLCanvasElement>('.contact-section__canvas--bloom')!;
+    const baseCtx     = baseCanvas.getContext('2d')!;
+    const bloomCtx    = bloomCanvas.getContext('2d')!;
+
+    let canvasW = 0, canvasH = 0;
+    let rafId: number | null = null;
+    let mouseX = -9999, mouseY = -9999, isMouseIn = false;
+
+    interface WordNode {
+      x: number; y: number;
+      vx: number; vy: number;
+      word: string;
+      fontScale: number;
+      opacity: number;
+      targetOpacity: number;
+      nx: number; ny: number;
+    }
+
+    const WORDS = [
+      'Creative','Developer','Available','Webflow','Design',
+      'Build','Shopify','Motion','Studio','Partner',
+      'Expert','Interface','Code','Visual','Craft','Digital','Freelance','2026',
+    ];
+
+    const SPRING_K             = 0.025;
+    const DAMPING              = 0.86;
+    const BROWNIAN             = 0.08;
+    const MAX_SPEED            = 5.0;
+    const WALL_MARGIN          = 50;
+    let   REPULSE_R            = 80;
+    let   ATTRACT_R            = 200;
+    let   MIN_NODE_DIST        = 90;
+    let   CONNECTION_THRESHOLD = 180;
+    const MAX_LINE_ALPHA       = 0.35;
+    const BLOOM_ALPHA_MULT     = 0.28;
+    const ZONE_PAD             = 16;
+    const ZONE_APPROACH        = 40;
+    const ZONE_REPULSE_F       = 2.5;
+
+    interface ExcludeZone { left: number; top: number; right: number; bottom: number; }
+    let excludeZones: ExcludeZone[] = [];
+
+    function updateExcludeZones(): void {
+      const innerRect = inner.getBoundingClientRect();
+      excludeZones = [];
+      for (const sel of ['.contact-section__letter--j', '.contact-section__letter--r', '.contact-section__social']) {
+        const el = inner.querySelector<HTMLElement>(sel);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        excludeZones.push({
+          left:   r.left   - innerRect.left - ZONE_PAD,
+          top:    r.top    - innerRect.top  - ZONE_PAD,
+          right:  r.right  - innerRect.left + ZONE_PAD,
+          bottom: r.bottom - innerRect.top  + ZONE_PAD,
+        });
+      }
+    }
+
+    function resizeCanvases(): void {
+      const dpr = window.devicePixelRatio || 1;
+      canvasW = inner.clientWidth;
+      canvasH = inner.clientHeight;
+
+      CONNECTION_THRESHOLD = Math.round(canvasW * 0.16);
+      ATTRACT_R            = Math.round(canvasW * 0.18);
+      REPULSE_R            = Math.round(canvasW * 0.05);
+      MIN_NODE_DIST        = Math.round(canvasW * 0.065);
+
+      for (const [canvas, ctx] of [
+        [baseCanvas, baseCtx],
+        [bloomCanvas, bloomCtx],
+      ] as [HTMLCanvasElement, CanvasRenderingContext2D][]) {
+        canvas.width  = Math.round(canvasW * dpr);
+        canvas.height = Math.round(canvasH * dpr);
+        canvas.style.width  = canvasW + 'px';
+        canvas.style.height = canvasH + 'px';
+        ctx.scale(dpr, dpr);
+      }
+
+      for (const n of nodes) { n.x = n.nx * canvasW; n.y = n.ny * canvasH; }
+      updateExcludeZones();
+    }
+
+    function createNodes(): WordNode[] {
+      const cols = 6, rows = 3;
+      return WORDS.map((word, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const cellW = canvasW / cols;
+        const cellH = canvasH / rows;
+        const jx = (Math.random() - 0.5) * cellW * 0.5;
+        const jy = (Math.random() - 0.5) * cellH * 0.5;
+        const x = cellW * (col + 0.5) + jx;
+        const y = cellH * (row + 0.5) + jy;
+        return {
+          x, y,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          word,
+          fontScale: Math.random() * 0.010 + 0.010,
+          opacity: 0,
+          targetOpacity: Math.random() * 0.3 + 0.25,
+          nx: x / canvasW,
+          ny: y / canvasH,
+        };
+      });
+    }
+
+    let nodes: WordNode[] = [];
+    resizeCanvases();
+    nodes = createNodes();
+    updateExcludeZones();
+
+    inner.addEventListener('mousemove', (e: MouseEvent) => {
+      const r = inner.getBoundingClientRect();
+      mouseX = e.clientX - r.left;
+      mouseY = e.clientY - r.top;
+      isMouseIn = true;
+    }, { passive: true });
+
+    inner.addEventListener('mouseleave', () => {
+      isMouseIn = false; mouseX = -9999; mouseY = -9999;
+    }, { passive: true });
+
+    function resolveCollisions(): void {
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx   = nodes[j].x - nodes[i].x;
+          const dy   = nodes[j].y - nodes[i].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < MIN_NODE_DIST && dist > 0) {
+            const f  = (MIN_NODE_DIST - dist) / MIN_NODE_DIST * 0.5;
+            const fx = (dx / dist) * f;
+            const fy = (dy / dist) * f;
+            nodes[i].vx -= fx; nodes[i].vy -= fy;
+            nodes[j].vx += fx; nodes[j].vy += fy;
+          }
+        }
+      }
+    }
+
+    function updateNode(n: WordNode): void {
+      n.vx += (Math.random() - 0.5) * BROWNIAN;
+      n.vy += (Math.random() - 0.5) * BROWNIAN;
+
+      if (isMouseIn) {
+        const dx   = mouseX - n.x;
+        const dy   = mouseY - n.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < REPULSE_R && dist > 0) {
+          const f = (REPULSE_R - dist) / REPULSE_R;
+          n.vx -= (dx / dist) * f * 2.5;
+          n.vy -= (dy / dist) * f * 2.5;
+        } else if (dist < ATTRACT_R && dist > 0) {
+          n.vx += (dx / dist) * SPRING_K * (dist - REPULSE_R);
+          n.vy += (dy / dist) * SPRING_K * (dist - REPULSE_R);
+        }
+      }
+
+      if (n.x < WALL_MARGIN)           n.vx += (WALL_MARGIN - n.x) * 0.05;
+      if (n.x > canvasW - WALL_MARGIN) n.vx -= (n.x - (canvasW - WALL_MARGIN)) * 0.05;
+      if (n.y < WALL_MARGIN)           n.vy += (WALL_MARGIN - n.y) * 0.05;
+      if (n.y > canvasH - WALL_MARGIN) n.vy -= (n.y - (canvasH - WALL_MARGIN)) * 0.05;
+
+      for (const zone of excludeZones) {
+        const closestX = Math.max(zone.left, Math.min(n.x, zone.right));
+        const closestY = Math.max(zone.top,  Math.min(n.y, zone.bottom));
+        const dx = n.x - closestX;
+        const dy = n.y - closestY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < ZONE_APPROACH && dist > 0) {
+          const f = (1 - dist / ZONE_APPROACH) * ZONE_REPULSE_F;
+          n.vx += (dx / dist) * f;
+          n.vy += (dy / dist) * f;
+        } else if (dist === 0) {
+          const cx = (zone.left + zone.right) / 2;
+          const cy = (zone.top  + zone.bottom) / 2;
+          const cdx = n.x - cx || 0.1;
+          const cdy = n.y - cy || 0.1;
+          const cdist = Math.sqrt(cdx * cdx + cdy * cdy) || 1;
+          n.vx += (cdx / cdist) * ZONE_REPULSE_F * 2;
+          n.vy += (cdy / cdist) * ZONE_REPULSE_F * 2;
+        }
+      }
+
+      n.vx *= DAMPING; n.vy *= DAMPING;
+      const speed = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
+      if (speed > MAX_SPEED) { n.vx = (n.vx / speed) * MAX_SPEED; n.vy = (n.vy / speed) * MAX_SPEED; }
+
+      n.x += n.vx; n.y += n.vy;
+      n.nx = n.x / canvasW; n.ny = n.y / canvasH;
+      n.opacity += (n.targetOpacity - n.opacity) * 0.04;
+    }
+
+    function drawConnections(ctx: CanvasRenderingContext2D, bloom: boolean): void {
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx   = nodes[j].x - nodes[i].x;
+          const dy   = nodes[j].y - nodes[i].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist >= CONNECTION_THRESHOLD) continue;
+
+          const t     = 1 - dist / CONNECTION_THRESHOLD;
+          const alpha = t * MAX_LINE_ALPHA * (bloom ? BLOOM_ALPHA_MULT : 1);
+
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = bloom
+            ? `rgba(255,80,80,${alpha})`
+            : `rgba(240,240,240,${alpha})`;
+          ctx.lineWidth = bloom ? 1.5 : 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+
+    function drawNodes(ctx: CanvasRenderingContext2D, bloom: boolean): void {
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      for (const n of nodes) {
+        const a = bloom ? n.opacity * 0.22 : n.opacity;
+        ctx.fillStyle = bloom
+          ? `rgba(255,60,60,${a})`
+          : `rgba(240,240,240,${a})`;
+        ctx.font = `500 ${Math.max(12, Math.round(n.fontScale * canvasW))}px 'Archivo Narrow', sans-serif`;
+        ctx.fillText(n.word, n.x, n.y);
+      }
+    }
+
+    function render(): void {
+      if (document.hidden) { rafId = requestAnimationFrame(render); return; }
+
+      baseCtx.clearRect(0, 0, canvasW, canvasH);
+      bloomCtx.clearRect(0, 0, canvasW, canvasH);
+
+      resolveCollisions();
+      for (const n of nodes) updateNode(n);
+
+      drawConnections(baseCtx, false);
+      drawNodes(baseCtx, false);
+      drawConnections(bloomCtx, true);
+      drawNodes(bloomCtx, true);
+
+      rafId = requestAnimationFrame(render);
+    }
+
+    const io = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) { if (rafId === null) render(); }
+      else if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    }, { threshold: 0.01 });
+    io.observe(inner);
+
+    new ResizeObserver(() => resizeCanvases()).observe(inner);
+  }
+
+  initContactCanvas();
+</script>
+
 <style>
   .contact-section {
     --letter-display: clamp(4rem, 12vw, 16rem);
@@ -218,6 +451,7 @@ const socials = [
   .contact-section__letter--j {
     top: var(--space-md);
     left: var(--container-padding);
+    transform: translateY(-0.12em); /* alinha o cap visual com os links sociais */
   }
 
   .contact-section__letter--r {
@@ -289,135 +523,6 @@ const socials = [
     transform: rotate(-90deg) translate(-2px, 2px);
   }
 
-  /* ── Binary vertical text ───────────────────────────── */
-  .contact-section__binary {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    writing-mode: vertical-lr;
-    font-family: var(--font-primary);
-    font-size: var(--caps);
-    letter-spacing: 0.15em;
-    color: var(--color-text-muted);
-    user-select: none;
-    pointer-events: none;
-    opacity: 0.5;
-    z-index: var(--z-above);
-  }
-
-  .contact-section__binary--left {
-    left: var(--container-padding);
-  }
-
-  .contact-section__binary--right {
-    right: var(--container-padding);
-  }
-
-  /* ── Center content ─────────────────────────────────── */
-  .contact-section__center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-sm);
-    text-align: center;
-    pointer-events: none;
-  }
-
-  .contact-section__headline {
-    font-family: var(--font-display);
-    font-size: var(--h1);
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: -0.03em;
-    line-height: 0.87;
-    margin: 0;
-  }
-
-  /* ── CTA button ─────────────────────────────────────── */
-  .contact-section__cta {
-    position: relative;
-    display: inline-block;
-    padding: var(--space-sm) var(--space-md);
-    text-decoration: none;
-    color: var(--color-text);
-    pointer-events: auto;
-    cursor: pointer;
-  }
-
-  .contact-section__corner {
-    position: absolute;
-    color: var(--color-text);
-    opacity: 0.3;
-    transition:
-      transform 0.4s var(--ease-out-expo),
-      opacity 0.4s var(--ease-out-expo),
-      color 0.4s var(--ease-out-expo);
-  }
-
-  .contact-section__corner--tl { top: 0; left: 0; }
-  .contact-section__corner--tr { top: 0; right: 0; }
-  .contact-section__corner--bl { bottom: 0; left: 0; }
-  .contact-section__corner--br { bottom: 0; right: 0; }
-
-  .contact-section__cta:hover .contact-section__corner {
-    opacity: 1;
-    color: var(--color-accent);
-  }
-
-  .contact-section__cta:hover .contact-section__corner--tl {
-    transform: translate(-3px, -3px);
-  }
-
-  .contact-section__cta:hover .contact-section__corner--tr {
-    transform: translate(3px, -3px);
-  }
-
-  .contact-section__cta:hover .contact-section__corner--bl {
-    transform: translate(-3px, 3px);
-  }
-
-  .contact-section__cta:hover .contact-section__corner--br {
-    transform: translate(3px, 3px);
-  }
-
-  .contact-section__cta-text {
-    display: block;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .contact-section__cta-original,
-  .contact-section__cta-duplicate {
-    display: block;
-    font-family: var(--font-display);
-    font-size: var(--display);
-    text-transform: uppercase;
-    letter-spacing: -0.03em;
-    line-height: 0.87;
-    transition:
-      transform 0.4s var(--ease-out-expo),
-      color 0.4s var(--ease-out-expo);
-  }
-
-  .contact-section__cta-duplicate {
-    position: absolute;
-    inset: 0;
-    transform: translateY(100%);
-  }
-
-  .contact-section__cta:hover .contact-section__cta-original {
-    transform: translateY(-100%);
-    color: var(--color-accent);
-  }
-
-  .contact-section__cta:hover .contact-section__cta-duplicate {
-    transform: translateY(0);
-    color: var(--color-accent);
-  }
-
   /* ── Bottom meta ────────────────────────────────────── */
   .contact-section__copyright {
     position: absolute;
@@ -430,21 +535,25 @@ const socials = [
     z-index: var(--z-above);
   }
 
-  .contact-section__rights {
+  /* ── Canvas layers ──────────────────────────────────── */
+  .contact-section__canvas {
     position: absolute;
-    bottom: var(--space-md);
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--font-primary);
-    font-size: var(--paragraph-s);
-    color: var(--color-text-muted);
-    margin: 0;
-    white-space: nowrap;
-    z-index: var(--z-above);
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
+
+  .contact-section__canvas--base  { z-index: 0; }
+  .contact-section__canvas--bloom { z-index: 1; mix-blend-mode: screen; opacity: 0.7; }
+
+  .contact-section__letter { z-index: 2; }
+  .contact-section__center { z-index: 2; }
 
   /* ── Accessibility ──────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
+    .contact-section__canvas { display: none; }
     .contact-section__cta-original,
     .contact-section__cta-duplicate,
     .contact-section__social-original,

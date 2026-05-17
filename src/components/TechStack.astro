@@ -120,7 +120,7 @@ const ANGLE = 14; /* igual ao original MWG_040 — arco total ~154°, ~6 itens v
 
   /* ── Heading section: flow normal, padding = rw-slider__header ── */
   .ts__heading-section {
-    padding: 8em 25px 6em;
+    padding: var(--section-space-y) var(--container-padding) var(--section-space-y-tight);
   }
 
   .ts__title {
@@ -133,9 +133,9 @@ const ANGLE = 14; /* igual ao original MWG_040 — arco total ~154°, ~6 itens v
     color: var(--color-text);
   }
 
-  /* ── Pin-height: 500vh de espaço de rolagem ─────────────────── */
+  /* ── Pin-height: encurtado para reduzir tempo morto de scroll ─ */
   .ts__pin-height {
-    height: 500vh;
+    height: 340vh;
   }
 
   /* Container: 100vh sem overflow — itens saem pelo viewport naturalmente */
@@ -205,7 +205,7 @@ const ANGLE = 14; /* igual ao original MWG_040 — arco total ~154°, ~6 itens v
   /* ── Responsivo ──────────────────────────────────────────────── */
   @media (max-width: 768px) {
     .ts__heading-section {
-      padding: 5em 25px 4em;
+      padding: var(--section-space-y-tight) var(--container-padding);
     }
 
     .ts__orbit {
@@ -226,6 +226,10 @@ const ANGLE = 14; /* igual ao original MWG_040 — arco total ~154°, ~6 itens v
     .ts__icon {
       width: 12vw;
       height: 12vw;
+    }
+
+    .ts__pin-height {
+      height: 280vh;
     }
   }
 
@@ -304,23 +308,16 @@ const ANGLE = 14; /* igual ao original MWG_040 — arco total ~154°, ~6 itens v
         gsap.set(el.querySelector('.ts__icon-wrap'), { rotation: -(i * ANGLE) });
       });
 
-      /* Orbits ficam invisíveis até o pin ativar — evita bleed visual nas seções acima */
-      gsap.set([leftOrbit, rightOrbit], { autoAlpha: 0 });
-
       /* Rotação total — fiel ao original: -(180 + angle × n) */
       var totalRotation = -(180 + ANGLE * leftItems.length);
 
-      /* ── Pin do container durante os 500vh ─────────────────────── */
+      /* ── Pin do container durante toda a zona de scroll ───────── */
       ScrollTrigger.create({
         trigger: pinHeight,
         start: 'top top',
         end: 'bottom bottom',
         pin: container,
         anticipatePin: 1,
-        onEnter:     function () { gsap.set([leftOrbit, rightOrbit], { autoAlpha: 1 }); },
-        onEnterBack: function () { gsap.set([leftOrbit, rightOrbit], { autoAlpha: 1 }); },
-        onLeave:     function () { gsap.set([leftOrbit, rightOrbit], { autoAlpha: 0 }); },
-        onLeaveBack: function () { gsap.set([leftOrbit, rightOrbit], { autoAlpha: 0 }); },
       });
 
       var rotST = {

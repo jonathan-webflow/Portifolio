@@ -45,6 +45,11 @@
   --space-lg: 4rem;
   --space-xl: 8rem;
 
+  /* Ritmo vertical entre seções */
+  --section-space-y: clamp(2rem, 5vw, 4.5rem);
+  --section-space-y-tight: clamp(1.25rem, 3vw, 2.75rem);
+  --section-space-y-loose: clamp(2.75rem, 7vw, 6rem);
+
   /* Layout */
   --container-max: 1440px;
   --container-padding: clamp(1.5rem, 5vw, 4rem);
@@ -194,14 +199,8 @@ ol {
 }
 
 /* --- Estados de animação GSAP (base) ---------------------- */
-/* Elementos marcados com data-reveal são escondidos antes do JS rodar */
+/* Sem timeline global de reveal, elementos devem permanecer visíveis */
 [data-reveal] {
-  opacity: 0;
-  will-change: transform, opacity;
-}
-
-/* Remover ocultação se JS não carregou (no-js fallback) */
-.no-js [data-reveal] {
   opacity: 1;
 }
 

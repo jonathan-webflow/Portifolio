@@ -5,7 +5,7 @@ year: 2024
 role: "Design + Development"
 coverImage: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop"
 tags: ["Branding", "Web Design", "Motion", "Astro"]
-draft: false
+draft: true
 featured: true
 description: "Redesign completo da identidade visual e experiência digital de uma agência criativa de São Paulo."
 url: "https://exemplo.com"

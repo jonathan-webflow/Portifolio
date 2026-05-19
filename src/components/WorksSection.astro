@@ -1,0 +1,591 @@
+---
+import { getCollection } from 'astro:content';
+
+const projectEntries = await getCollection('projects', ({ data }) => !data.draft);
+const sorted = projectEntries.sort((a, b) => a.data.order - b.data.order);
+
+const works = sorted.map((entry, index) => ({
+  id: index,
+  name: entry.data.title,
+  year: String(entry.data.year),
+  imgSrc: entry.data.coverImage,
+  imgSizes: "(max-width: 2250px) 100vw, 2250px",
+  imgClass: "works-detail_img",
+  overview: entry.data.description ?? "",
+  tags: entry.data.tags,
+  industries: entry.data.industries,
+  client: entry.data.client,
+  link: entry.data.url ?? entry.data.caseStudyUrl ?? "#",
+}));
+
+const displayYear = works[0]?.year ?? "2025";
+---
+
+<section id="Works-Section" class="section_works">
+  <div class="works-padding-global">
+    <div class="works-container-global">
+      <div class="works_container">
+        <div class="works_main-wrapper">
+
+          <!-- LEFT PANEL: pinned detail card -->
+          <div id="works-left-node">
+            <div class="works-left">
+            <div class="works_wrapper">
+              {works.map((work) => (
+                <div
+                  class={`work-detail${work.id === 0 ? " is-active" : ""}`}
+                  data-work-index={work.id}
+                >
+                  <div class="works-detail_top">
+                    <div class="works-detail_img-holder">
+                      <img
+                        src={work.imgSrc}
+                        loading="lazy"
+                        sizes={work.imgSizes}
+                        alt={work.name}
+                        class={work.imgClass}
+                      />
+                    </div>
+                    <div class="work-detail_list">
+                      <div class="work-detail_list-item">
+                        <div class="work-detail_list-left">
+                          <p class="works-p works-p--white">Overview</p>
+                        </div>
+                        <div class="work-detail_list-right">
+                          <p class="works-p">{work.overview}</p>
+                        </div>
+                      </div>
+                      <div class="work-detail_list-item">
+                        <div class="work-detail_list-left">
+                          <p class="works-p works-p--white">Tags</p>
+                        </div>
+                        <div class="work-detail_list-right">
+                          <div class="work-detail_list-tags">
+                            {work.tags.map((tag) => (
+                              <p class="works-p">{tag}</p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="work-detail_list-item">
+                        <div class="work-detail_list-left">
+                          <p class="works-p works-p--white">Industry</p>
+                        </div>
+                        <div class="work-detail_list-right">
+                          <div class="work-detail_list-tags">
+                            {work.industries.map((ind) => (
+                              <p class="works-p">{ind}</p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="work-detail_list-item">
+                        <div class="work-detail_list-left">
+                          <p class="works-p works-p--white">Client</p>
+                        </div>
+                        <div class="work-detail_list-right">
+                          <p class="works-p">{work.client}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="works-detail_bottom">
+                    <a
+                      href={work.link}
+                      target="_blank"
+                      class="works-button"
+                    >
+                      <div class="works-p works-p--white">Explore the website</div>
+                      <div class="works-button__line"></div>
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+            </div>
+          </div>
+
+          <!-- CENTER PANEL: pinned year display -->
+          <div class="works-center">
+            <div class="works-year">
+              {displayYear.split("").map((digit) => (
+                <span class="works-year__digit">{digit}</span>
+              ))}
+            </div>
+          </div>
+
+          <!-- RIGHT PANEL: scrollable title list -->
+          <div id="works-right-node" class="works-right">
+            <div class="works-right_overlay-wrapper">
+              <div class="works-right_overlay-top"></div>
+              <div class="works-right_overlay-bottom"></div>
+            </div>
+            <div class="works-titles">
+              {works.map((work) => (
+                <div
+                  class={`work_h2-wrapper${work.id === 0 ? " is-open" : ""}`}
+                  data-mobile-accordion-index={work.id}
+                >
+                  <h2
+                    data-year={work.year}
+                    class={`h2_works${work.id === 0 ? " is-active" : ""}`}
+                    role="button"
+                    tabindex="0"
+                    aria-expanded={work.id === 0 ? "true" : "false"}
+                  >
+                    {work.name}
+                  </h2>
+                  <!-- Mobile accordion panel -->
+                  <div class="work_h2-case-wrapper mobile">
+                    <div class="work-detail">
+                      <div class="works-detail_top">
+                        <div class="works-detail_img-holder">
+                          <img
+                            src={work.imgSrc}
+                            loading="lazy"
+                            sizes={work.imgSizes}
+                            alt={work.name}
+                            class={work.imgClass}
+                          />
+                        </div>
+                        <div class="work-detail_list">
+                          <div class="work-detail_list-item">
+                            <div class="work-detail_list-left">
+                              <p class="works-p works-p--white">Overview</p>
+                            </div>
+                            <div class="work-detail_list-right">
+                              <p class="works-p">{work.overview}</p>
+                            </div>
+                          </div>
+                          <div class="work-detail_list-item">
+                            <div class="work-detail_list-left">
+                              <p class="works-p works-p--white">Tags</p>
+                            </div>
+                            <div class="work-detail_list-right">
+                              <div class="work-detail_list-tags">
+                                {work.tags.map((tag) => (
+                                  <p class="works-p">{tag}</p>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div class="work-detail_list-item">
+                            <div class="work-detail_list-left">
+                              <p class="works-p works-p--white">Industry</p>
+                            </div>
+                            <div class="work-detail_list-right">
+                              <div class="work-detail_list-tags">
+                                {work.industries.map((ind) => (
+                                  <p class="works-p">{ind}</p>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div class="work-detail_list-item">
+                            <div class="work-detail_list-left">
+                              <p class="works-p works-p--white">Client</p>
+                            </div>
+                            <div class="work-detail_list-right">
+                              <p class="works-p">{work.client}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="works-detail_bottom">
+                        <a
+                          href={work.link}
+                          target="_blank"
+                          class="works-button"
+                        >
+                          <div class="works-p works-p--white">Explore the website</div>
+                          <div class="works-button__line"></div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── Component tokens ── */
+  .section_works {
+    --works-border: rgb(82, 82, 82);
+  }
+
+  /* ── Section ── */
+  .section_works {
+    height: auto;
+    margin-bottom: clamp(6rem, 12vw, 20rem);
+  }
+
+  /* ── Layout wrappers ── */
+  .works-padding-global {
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+  }
+
+  .works-container-global { width: 100%; }
+
+  .works_main-wrapper {
+    gap: var(--space-sm);
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-auto-columns: 1fr;
+    display: grid;
+    position: relative;
+    align-items: start;
+  }
+
+  /* Left and Right span 2 of 5 columns each */
+  #works-left-node,
+  #works-right-node {
+    grid-area: span 1 / span 2 / span 1 / span 2;
+  }
+
+  .works-left {
+    height: 100svh;
+    padding-top: var(--space-sm);
+    padding-bottom: var(--space-sm);
+    display: block;
+    overflow: hidden;
+  }
+
+  .works_wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  /* ── Work detail card ── */
+  .work-detail {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .work-detail.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .works-detail_top {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .works-detail_img-holder {
+    width: 100%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-radius: 10px;
+  }
+
+  .works-detail_img {
+    object-fit: cover;
+    width: 100%;
+    height: clamp(18rem, 25vw, 60rem);
+  }
+
+  .works-detail_img.is-sm {
+    border: 1px solid rgb(31, 31, 31);
+  }
+
+  /* ── Detail list ── */
+  .work-detail_list {
+    flex-direction: column;
+    gap: clamp(0.5rem, 0.8vw, 1.5rem);
+    margin-top: clamp(0.75rem, 1vw, 1.5rem);
+    display: flex;
+  }
+
+  .work-detail_list-item {
+    gap: var(--space-sm);
+    border-top: 1px solid var(--works-border);
+    grid-template-columns: 1fr 1fr;
+    padding-top: clamp(0.35rem, 0.4vw, 0.75rem);
+    display: grid;
+  }
+
+  .work-detail_list-tags {
+    gap: 0.2rem;
+    flex-flow: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    display: flex;
+  }
+
+  .works-detail_bottom {
+    flex-flow: column;
+    width: 100%;
+    display: flex;
+    flex-shrink: 0;
+    padding-top: clamp(1rem, 1.5vw, 2.5rem);
+  }
+
+  /* ── Center year panel ── */
+  .works-center {
+    justify-content: flex-end;
+    align-items: center;
+    height: 100svh;
+    padding-right: clamp(2rem, 5vw, 10rem);
+    display: flex;
+  }
+
+  .works-year {
+    display: inline-flex;
+    gap: 0.02em;
+    font-size: clamp(0.875rem, 1vw, 2rem);
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+  }
+
+  .works-year__digit { display: inline-block; }
+
+  /* ── Right panel ── */
+  .works-right { position: relative; }
+
+  /* Overlay is absolutely positioned — doesn't push titles down */
+  .works-right_overlay-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100svh;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .works-right_overlay-top {
+    background-image: linear-gradient(var(--color-bg), transparent);
+    min-height: 40vh;
+    position: relative;
+    inset: 0% 0% auto;
+  }
+
+  .works-right_overlay-bottom {
+    background-image: linear-gradient(transparent, var(--color-bg));
+    min-height: 40vh;
+    position: absolute;
+    inset: auto 0% 0%;
+  }
+
+  .works-titles {
+    flex-flow: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    display: flex;
+  }
+
+  /* Desktop: first title centered at 50vh when section enters viewport */
+  @media (min-width: 992px) {
+    .works-titles {
+      padding-top: 50vh;
+      padding-bottom: 50vh;
+    }
+  }
+
+  /* ── H2 titles ── */
+  .h2_works {
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: -0.02em;
+    margin: 0;
+    font-size: clamp(3rem, 7vw, 14rem);
+    font-weight: 500;
+    line-height: 110%;
+    transition: color 0.2s linear;
+    cursor: pointer;
+  }
+
+  .h2_works.is-active { color: var(--color-accent-contrast); }
+
+  /* ── Button ── */
+  .works-button {
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--color-accent-contrast);
+    flex-flow: column;
+    text-decoration: none;
+    display: inline-flex;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .works-button__line {
+    background-color: var(--color-accent-contrast);
+    height: 1px;
+    width: 100%;
+  }
+
+  /* ── Text helpers ── */
+  .works-p {
+    font-size: clamp(0.75rem, 0.6rem + 0.3vw, 0.9375rem);
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+  }
+
+  .works-p--white { color: var(--color-accent-contrast); }
+
+  /* ── Mobile: hide accordion by default ── */
+  .work_h2-case-wrapper.mobile { display: none; }
+
+  /* ── Mobile breakpoint ── */
+  @media (max-width: 991px) {
+    .works_main-wrapper { display: flex; flex-direction: column; }
+    .works-left { display: none; }
+    .works-center { display: none; }
+    .works-right { width: 100%; }
+    .h2_works { font-size: 2.5rem; cursor: pointer; }
+    .work_h2-case-wrapper.mobile {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition: grid-template-rows 0.45s ease, opacity 0.3s ease;
+    }
+    .work_h2-case-wrapper.mobile > .work-detail {
+      overflow: hidden;
+      min-height: 0;
+    }
+    .work_h2-wrapper.is-open .work_h2-case-wrapper.mobile {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    .work_h2-wrapper.is-open .h2_works { color: #fff; }
+    .works-right_overlay-wrapper { display: none; }
+  }
+</style>
+
+<script>
+  function initWorksSection(): void {
+    const gsap = (window as any).gsap;
+    const ScrollTrigger = (window as any).ScrollTrigger;
+
+    if (!gsap || !ScrollTrigger) {
+      window.addEventListener('load', initWorksSection, { once: true });
+      return;
+    }
+
+    const section = document.querySelector('#Works-Section') as HTMLElement;
+    if (!section || section.dataset.worksInitialized === 'true') return;
+    section.dataset.worksInitialized = 'true';
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const worksLeft   = section.querySelector<HTMLElement>('.works-left');
+    const worksCenter = section.querySelector<HTMLElement>('.works-center');
+
+    // Pin left and center panels using GSAP (required with ScrollSmoother — CSS sticky
+    // doesn't work because ScrollSmoother translates #smooth-content via transform)
+    if (worksLeft) {
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        pin: worksLeft,
+        pinSpacing: false,
+        anticipatePin: 1,
+      });
+    }
+
+    if (worksCenter) {
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        pin: worksCenter,
+        pinSpacing: false,
+        anticipatePin: 1,
+      });
+    }
+
+    const worksOverlay = section.querySelector<HTMLElement>('.works-right_overlay-wrapper');
+    if (worksOverlay) {
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        pin: worksOverlay,
+        pinSpacing: false,
+        anticipatePin: 1,
+      });
+    }
+
+    const workDetails = gsap.utils.toArray<HTMLElement>('.works-left .work-detail');
+    const workTitles = gsap.utils.toArray<HTMLElement>('.works-right .work_h2-wrapper h2');
+    const yearEl = section.querySelector('.works-year');
+
+    function activateWork(index: number): void {
+      workDetails.forEach((detail: HTMLElement, i: number) => {
+        detail.classList.toggle('is-active', i === index);
+      });
+
+      workTitles.forEach((title: HTMLElement, i: number) => {
+        title.classList.toggle('is-active', i === index);
+        title.setAttribute('aria-expanded', i === index ? 'true' : 'false');
+      });
+
+      const activeYear = workTitles[index]?.getAttribute('data-year');
+      if (yearEl && activeYear) {
+        const digits = yearEl.querySelectorAll('.works-year__digit');
+        digits.forEach((digit: Element, i: number) => {
+          gsap.to(digit, {
+            duration: 0.5,
+            scrambleText: {
+              text: activeYear[i] ?? '',
+              chars: '0123456789',
+              speed: 0.6,
+              revealDelay: 0,
+            },
+            ease: 'none',
+          });
+        });
+      }
+    }
+
+    workTitles.forEach((title: HTMLElement, index: number) => {
+      ScrollTrigger.create({
+        trigger: title,
+        start: 'top center',
+        end: 'bottom center',
+        onEnter: () => activateWork(index),
+        onEnterBack: () => activateWork(index),
+      });
+    });
+
+    // Mobile accordion
+    const mobileWrappers = section.querySelectorAll<HTMLElement>('.work_h2-wrapper');
+    mobileWrappers.forEach((wrapper) => {
+      const btn = wrapper.querySelector('h2');
+      btn?.addEventListener('click', () => {
+        const isOpen = wrapper.classList.contains('is-open');
+        mobileWrappers.forEach((w) => {
+          w.classList.remove('is-open');
+          w.querySelector('h2')?.setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          wrapper.classList.add('is-open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  }
+
+  initWorksSection();
+</script>

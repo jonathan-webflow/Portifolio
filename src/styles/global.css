@@ -23,8 +23,8 @@
   --label-heading: 1.625rem;
 
   /* Paragraphs & UI */
-  --paragraph-l:  clamp(.9375rem, .795rem + .7125vw, 1.65rem);
-  --paragraph-m:  clamp(.9375rem, .855rem + .4125vw, 1.35rem);
+  --paragraph-l:  clamp(.9375rem, .5rem + 1.05vw, 2.5rem);
+  --paragraph-m:  clamp(.9375rem, .5rem + .85vw, 2rem);
   --paragraph-s:  clamp(.875rem, .85rem + .125vw, 1rem);
   --paragraph-xs: clamp(.75rem, .725rem + .125vw, .875rem);
   --caps:         .8rem;
@@ -52,7 +52,7 @@
 
   /* Layout */
   --container-max: 1440px;
-  --container-padding: clamp(1.5rem, 5vw, 4rem);
+  --container-padding: 1.25rem;
 
   /* Easings GSAP (referência para CSS transitions de fallback) */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);

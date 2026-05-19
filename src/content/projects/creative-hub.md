@@ -8,6 +8,7 @@ tags: ["Web Design", "UI/UX", "Creative Industry", "Art & Culture"]
 industries: ["Creative Industry", "Art & Culture"]
 description: "A dynamic Webflow website for CreativeHub, designed to showcase creative work, exhibitions, and collaborations through a modern editorial digital experience."
 caseStudyUrl: "https://www.behance.net/gallery/202328389/Dynamic-and-Innovative-Webflow-Design-for-CreativeHub"
+draft: true
 featured: false
 order: 6
 accentColor: "#FB923C"

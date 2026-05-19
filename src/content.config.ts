@@ -23,10 +23,13 @@ const projects = defineCollection({
     role: z.string().min(1),
 
     /** Caminho da imagem de capa (relativo a /public ou URL absoluta) */
-    coverImage: z.string().min(1),
+    coverImage: z.string().default(""),
 
     /** Tecnologias ou categorias usadas */
     tags: z.array(z.string()).default([]),
+
+    /** Indústrias ou setores do projeto */
+    industries: z.array(z.string()).default([]),
 
     /** Rascunho — projetos com draft: true não aparecem em produção */
     draft: z.boolean().default(false),

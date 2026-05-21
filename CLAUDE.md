@@ -5,6 +5,26 @@ Este arquivo define como colaborar neste projeto — leia antes de sugerir qualq
 
 ---
 
+## ⚠️ Regra obrigatória — Sincronizar antes de qualquer edição
+
+**Sempre executar antes de criar, editar ou deletar qualquer arquivo:**
+
+```bash
+git pull origin main
+```
+
+O `main` local diverge silenciosamente do remote após merges de PR.
+Trabalhar em uma cópia desatualizada gera conflitos, retrabalho e desperdício de tokens.
+
+**Checklist antes de editar:**
+1. `git status` — confirmar branch e estado do working tree
+2. `git pull origin main` — sincronizar com o remote
+3. Só então criar/editar/deletar arquivos
+
+> Não pular essa etapa mesmo que a tarefa pareça pequena.
+
+---
+
 ## Sobre o projeto
 
 Portfólio pessoal de **Jonathan Rocha** (Creative Developer · Webflow Certified Expert · Shopify Partner).

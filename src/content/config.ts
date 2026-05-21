@@ -30,6 +30,9 @@ const projects = defineCollection({
     /** Tecnologias ou categorias usadas */
     tags: z.array(z.string()).default([]),
 
+    /** Indústrias ou setores do projeto */
+    industries: z.array(z.string()).default([]),
+
     /** Rascunho — projetos com draft: true não aparecem em produção */
     draft: z.boolean().default(false),
 

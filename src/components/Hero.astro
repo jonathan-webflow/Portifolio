@@ -580,7 +580,7 @@ const medias = Object.keys(heroMediaMods)
     justify-content: center;
     align-items: center;
     gap: clamp(16px, 2vw, 32px);
-    padding-inline: clamp(24px, 5vw, 80px);
+    padding-inline: var(--container-padding);
   }
 
   /* Imagens do trail (criadas via JS, fora do scope do Astro) */
@@ -659,7 +659,7 @@ const medias = Object.keys(heroMediaMods)
     }
     .mwg_effect021 .container {
       gap: 15px;
-      padding-inline: 24px;
+      padding-inline: var(--container-padding);
     }
     .mwg_effect021 .title {
       font-size: clamp(40px, 11vw, 72px);

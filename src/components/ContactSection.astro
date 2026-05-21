@@ -457,6 +457,7 @@ const socials = [
   .contact-section__letter--r {
     bottom: var(--space-md);
     right: var(--container-padding);
+    transform: translateY(0.12em); /* espelha o -0.12em do J — alinha baseline com o copyright */
   }
 
   /* ── Social links ───────────────────────────────────── */
@@ -530,6 +531,7 @@ const socials = [
     left: var(--container-padding);
     font-family: var(--font-primary);
     font-size: var(--paragraph-s);
+    line-height: 1;
     color: var(--color-text-muted);
     margin: 0;
     z-index: var(--z-above);

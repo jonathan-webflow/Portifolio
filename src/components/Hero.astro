@@ -9,7 +9,7 @@
  * O email é copiável (navigator.clipboard) com um toast "Copied to clipboard".
  * O indicador de disponibilidade tem um ponto vermelho pulsante.
  *
- * Mouse trail (MWG_021):
+ * Mouse trail:
  *   - Ao mover o cursor horizontalmente, imagens surgem no ponto do mouse
  *   - Trail NÃO é criado na faixa vertical do navbar (para não atrapalhar clicks)
  *   - Cicla pelas 10 imagens pré-carregadas com elastic bounce + back.in
@@ -61,7 +61,7 @@ const medias = Object.keys(heroMediaMods)
   .map((path) => heroMediaMods[path]!.default);
 ---
 
-<section class="mwg_effect021" data-timezone={locationTimezone}>
+<section class="hero" data-timezone={locationTimezone}>
   <header class="nav-container" aria-label="Primary">
     <!-- Esquerda: menu — hover igual ao AVAILABLE (fill accent + texto contrast) -->
     <div class="nav-container__menu">
@@ -122,7 +122,7 @@ const medias = Object.keys(heroMediaMods)
 
 <script>
   // ============================================================
-  // Mouse trail (MWG_021)
+  // Mouse trail
   // ============================================================
   function initMouseTrail() {
     const gsap = (window as any).gsap;
@@ -132,7 +132,7 @@ const medias = Object.keys(heroMediaMods)
       return;
     }
 
-    const root = document.querySelector<HTMLElement>('.mwg_effect021');
+    const root = document.querySelector<HTMLElement>('.hero');
     if (!root) return;
 
     const navbar = root.querySelector<HTMLElement>('.nav-container');
@@ -239,7 +239,7 @@ const medias = Object.keys(heroMediaMods)
     const clockEl = document.getElementById('hero-clock') as HTMLTimeElement | null;
     if (!clockEl) return;
 
-    const tz = (document.querySelector('.mwg_effect021') as HTMLElement | null)
+    const tz = (document.querySelector('.hero') as HTMLElement | null)
       ?.dataset.timezone ?? 'America/Sao_Paulo';
 
     const fmt = new Intl.DateTimeFormat('en-US', {
@@ -277,7 +277,7 @@ const medias = Object.keys(heroMediaMods)
 
       gsap.registerPlugin(SplitText);
 
-      const titleEl = document.querySelector('.mwg_effect021 .title');
+      const titleEl = document.querySelector('.hero .title');
       if (!titleEl) return;
 
       const split = new SplitText(titleEl, {
@@ -288,8 +288,8 @@ const medias = Object.keys(heroMediaMods)
       });
 
       gsap.set([
-        '.mwg_effect021 .title',
-        '.mwg_effect021 .text',
+        '.hero .title',
+        '.hero .text',
         '.nav-container__menu .nav-button',
         '.nav-container__available .nav-button',
         '.nav-container__location .nav-button',
@@ -303,7 +303,7 @@ const medias = Object.keys(heroMediaMods)
           duration: 1.1,
           stagger: 0.045,
         }, 0)
-        .from('.mwg_effect021 .text', {
+        .from('.hero .text', {
           y: 28,
           opacity: 0,
           duration: 0.9,
@@ -357,8 +357,8 @@ const medias = Object.keys(heroMediaMods)
      Estados iniciais para a animação de entrada
      Mantidos hidden até o GSAP timeline rodar — evita FOUC
      ============================================================ */
-  .mwg_effect021 .title,
-  .mwg_effect021 .text,
+  .hero .title,
+  .hero .text,
   .nav-container__menu .nav-button,
   .nav-container__available .nav-button,
   .nav-container__location .nav-button {
@@ -371,10 +371,10 @@ const medias = Object.keys(heroMediaMods)
   }
 
   /* ============================================================
-     Hero Section — MWG_021 effect + Studio Primal navbar
+     Hero Section — Mouse trail + Studio Primal navbar
      Fontes globais (Archivo Narrow + Rethink Sans) vêm do Layout.astro
      ============================================================ */
-  .mwg_effect021 {
+  .hero {
     width: 100vw;
     height: 100svh;
     overflow: hidden;
@@ -387,7 +387,7 @@ const medias = Object.keys(heroMediaMods)
     line-height: 1.3;
   }
 
-  .mwg_effect021 * {
+  .hero * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -398,7 +398,7 @@ const medias = Object.keys(heroMediaMods)
   /* ============================================================
      NAVBAR — 3 colunas (menu | email | availability)
      ============================================================ */
-  .mwg_effect021 .nav-container {
+  .hero .nav-container {
     position: absolute;
     top: 0;
     left: 0;
@@ -412,39 +412,39 @@ const medias = Object.keys(heroMediaMods)
     z-index: 10;
   }
 
-  .mwg_effect021 .nav-container__menu {
+  .hero .nav-container__menu {
     display: flex;
     gap: clamp(2px, 0.4vw, 8px);
     justify-self: start;
     align-items: center;
   }
 
-  .mwg_effect021 .nav-container__available {
+  .hero .nav-container__available {
     justify-self: end;
     display: flex;
     align-items: center;
   }
 
-  .mwg_effect021 .nav-container__location {
+  .hero .nav-container__location {
     justify-self: center;
     display: flex;
     align-items: center;
   }
 
-  .mwg_effect021 .nav-button--location {
+  .hero .nav-button--location {
     cursor: default;
     gap: 0.4em;
     white-space: nowrap;
     pointer-events: none;
   }
 
-  .mwg_effect021 .nav-button--location:hover .nav-button__fill,
-  .mwg_effect021 .nav-button--location:hover .nav-button__text {
+  .hero .nav-button--location:hover .nav-button__fill,
+  .hero .nav-button--location:hover .nav-button__text {
     transform: none;
     color: inherit;
   }
 
-  .mwg_effect021 .nav-button__dot--location {
+  .hero .nav-button__dot--location {
     background: var(--color-text-muted);
     box-shadow: none;
     animation: none;
@@ -457,7 +457,7 @@ const medias = Object.keys(heroMediaMods)
      No hover, o fill anima para translateY(0) cobrindo o botão.
      Usa transform (GPU-accelerated) — não anima height/width.
      ============================================================ */
-  .mwg_effect021 .nav-button {
+  .hero .nav-button {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -484,7 +484,7 @@ const medias = Object.keys(heroMediaMods)
   /* .nav-button__text é o container do fill — overflow:hidden garante que
      o fill (translateY 100% → 0) não vaze para fora do texto.
      padding-block: 2px dá um pequeno respiro vertical no highlight. */
-  .mwg_effect021 .nav-button__text {
+  .hero .nav-button__text {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -494,13 +494,13 @@ const medias = Object.keys(heroMediaMods)
     line-height: 1;
   }
 
-  .mwg_effect021 .nav-button__dot-wrap {
+  .hero .nav-button__dot-wrap {
     position: relative;
     z-index: 2;
     line-height: 1;
   }
 
-  .mwg_effect021 .nav-button__fill {
+  .hero .nav-button__fill {
     position: absolute;
     inset: 0;
     background: var(--color-accent, #ff0000);
@@ -510,17 +510,17 @@ const medias = Object.keys(heroMediaMods)
     pointer-events: none;
   }
 
-  .mwg_effect021 .nav-button:hover .nav-button__fill,
-  .mwg_effect021 .nav-button:focus-visible .nav-button__fill {
+  .hero .nav-button:hover .nav-button__fill,
+  .hero .nav-button:focus-visible .nav-button__fill {
     transform: translateY(0);
   }
 
-  .mwg_effect021 .nav-button:hover .nav-button__text,
-  .mwg_effect021 .nav-button:focus-visible .nav-button__text {
+  .hero .nav-button:hover .nav-button__text,
+  .hero .nav-button:focus-visible .nav-button__text {
     color: var(--color-accent-contrast, #fff);
   }
 
-  .mwg_effect021 .nav-button:focus-visible {
+  .hero .nav-button:focus-visible {
     outline: 0;
   }
 
@@ -529,11 +529,11 @@ const medias = Object.keys(heroMediaMods)
      Mesmo pattern do fill no hover (apesar de não ser clicável)
      Se o data-state for "off", o dot fica cinza
      ============================================================ */
-  .mwg_effect021 .nav-button--toggle {
+  .hero .nav-button--toggle {
     cursor: default;
   }
 
-  .mwg_effect021 .nav-button__dot-wrap {
+  .hero .nav-button__dot-wrap {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -541,7 +541,7 @@ const medias = Object.keys(heroMediaMods)
     height: 12px;
   }
 
-  .mwg_effect021 .nav-button__dot {
+  .hero .nav-button__dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -550,7 +550,7 @@ const medias = Object.keys(heroMediaMods)
     animation: pulse-dot 2s ease-in-out infinite;
   }
 
-  .mwg_effect021 .nav-button--toggle[data-state='off'] .nav-button__dot {
+  .hero .nav-button--toggle[data-state='off'] .nav-button__dot {
     background: #555;
     box-shadow: none;
     animation: none;
@@ -562,14 +562,14 @@ const medias = Object.keys(heroMediaMods)
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .mwg_effect021 .nav-button__dot { animation: none; }
-    .mwg_effect021 .nav-button__fill { transition: none; }
+    .hero .nav-button__dot { animation: none; }
+    .hero .nav-button__fill { transition: none; }
   }
 
   /* ============================================================
      HERO CONTENT (título + subtítulo)
      ============================================================ */
-  .mwg_effect021 .container {
+  .hero .container {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -584,7 +584,7 @@ const medias = Object.keys(heroMediaMods)
   }
 
   /* Imagens do trail (criadas via JS, fora do scope do Astro) */
-  :global(.mwg_effect021 > img.trail-img) {
+  :global(.hero > img.trail-img) {
     width: 15vw;
     height: 15vw;
     position: absolute;
@@ -595,7 +595,7 @@ const medias = Object.keys(heroMediaMods)
   }
 
   /* Título — display token (Archivo Narrow, impacto editorial) */
-  .mwg_effect021 .title {
+  .hero .title {
     text-align: center;
     text-transform: uppercase;
     font-family: var(--font-display);
@@ -612,7 +612,7 @@ const medias = Object.keys(heroMediaMods)
      Contrasta com o h1 em 3 eixos: case (lower vs caps),
      tom (muted vs branco), peso visual (estreito vs largo).
      max-width em ~45% cria pirâmide — título largo, sub centralizado. */
-  .mwg_effect021 .text {
+  .hero .text {
     font-family: var(--font-primary);
     font-weight: 500;
     font-size: var(--paragraph-s);
@@ -625,7 +625,7 @@ const medias = Object.keys(heroMediaMods)
   }
 
   /* Imagens pré-carregadas (ocultas) */
-  .mwg_effect021 .medias img {
+  .hero .medias img {
     width: 1px;
     height: 1px;
     top: 0;
@@ -639,33 +639,33 @@ const medias = Object.keys(heroMediaMods)
      MOBILE — esconde email/availability, deixa apenas o menu
      ============================================================ */
   @media (max-width: 768px) {
-    .mwg_effect021 .nav-container {
+    .hero .nav-container {
       padding: 14px 18px;
       grid-template-columns: 1fr;
       gap: 0;
     }
-    .mwg_effect021 .nav-container__available,
-    .mwg_effect021 .nav-container__location {
+    .hero .nav-container__available,
+    .hero .nav-container__location {
       display: none;
     }
-    .mwg_effect021 .nav-container__menu {
+    .hero .nav-container__menu {
       justify-self: stretch;
       justify-content: space-between;
       gap: 0;
     }
-    .mwg_effect021 .nav-button {
+    .hero .nav-button {
       font-size: 11px;
       padding: 6px 8px;
     }
-    .mwg_effect021 .container {
+    .hero .container {
       gap: 15px;
       padding-inline: var(--container-padding);
     }
-    .mwg_effect021 .title {
+    .hero .title {
       font-size: clamp(40px, 11vw, 72px);
       max-width: 100%;
     }
-    .mwg_effect021 .text {
+    .hero .text {
       max-width: 80%;
     }
   }

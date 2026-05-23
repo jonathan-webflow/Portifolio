@@ -1,6 +1,6 @@
 ---
 /**
- * HistorySection.astro — Letter Fall / Scattered Text Alignment (MWG_049)
+ * HistorySection.astro — Letter Fall / Scattered Text Alignment (Letter Fall)
  *
  * Comportamento exato:
  *   1. `padding: 100svh` no wrapper → espaço de entrada e saída
@@ -130,7 +130,7 @@ const { entries = [
 
 <style>
   /* ============================================================
-     HistorySection — Letter Fall Effect (MWG_049 → Design System)
+     HistorySection — Letter Fall Effect (Letter Fall → Design System)
      ============================================================ */
 
   .history-section {
@@ -301,7 +301,7 @@ const { entries = [
 
 <script>
   // ============================================================
-  // HistorySection — Letter Fall (MWG_049)
+  // HistorySection — Letter Fall (Letter Fall)
   //
   // Implementação idêntica ao componente de referência:
   //   1. wrapLettersInSpan(title) — cada char → <span>
@@ -356,7 +356,7 @@ const { entries = [
 
       const dist = container.clientHeight - title.clientHeight;
 
-      // Pin nativo do GSAP no .title — idêntico ao MWG_049.
+      // Pin nativo do GSAP no .title — idêntico ao Letter Fall.
       // O GSAP insere .gsap-pin-spacer dentro do .container automaticamente,
       // mantendo o espaço de rolagem correto sem nenhum marginBottom manual.
       ScrollTrigger.create({

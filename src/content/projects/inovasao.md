@@ -1,5 +1,5 @@
 ---
-title: "Inova São Paulo"
+title: "InovaSão"
 client: "São Paulo FC"
 year: 2025
 role: "Webflow Development & Interaction Design"

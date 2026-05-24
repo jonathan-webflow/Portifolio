@@ -1,0 +1,491 @@
+---
+/**
+ * ServicesSection.astro — Lista de serviços com cursor follower GSAP
+ *
+ * Comportamento:
+ *   • 5 linhas de serviços em grid 2-col (número+heading | descrição)
+ *   • Hover: texto do item fica em --color-text, outros dimam (CSS :has)
+ *   • Background fullbleed com blur aparece por item
+ *   • Cursor follower (fixed, portrait 1/1.25, border-radius: 0.75em)
+ *     com gsap.quickTo para seguir o mouse e fromTo yPercent para transição de imagem
+ *   • Entrada: GSAP ScrollTrigger stagger fade+slide
+ */
+
+interface Service {
+  number: string;
+  heading: string;
+  body: string;
+  image: string;
+}
+
+const services: Service[] = [
+  {
+    number: '(01)',
+    heading: 'Webflow+Dev',
+    body: 'Pixel-perfect Webflow builds with clean CMS structure and advanced interactions — from design handoff to deployment.',
+    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ContactImage1.webp',
+  },
+  {
+    number: '(02)',
+    heading: 'Motion+Design',
+    body: 'High-end animations, kinetic typography and smooth transitions that bring static layouts to life.',
+    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ProjectDesign.webp',
+  },
+  {
+    number: '(03)',
+    heading: 'Shopify+Partner',
+    body: 'Custom Shopify storefronts built for performance and conversion — themes, sections and integrations tailored to your brand.',
+    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ContactImage3.webp',
+  },
+  {
+    number: '(04)',
+    heading: 'Creative+Direction',
+    body: 'From concept to execution — visual identity, art direction and strategic design for brands that want to be impossible to forget.',
+    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ProjectImage.webp',
+  },
+  {
+    number: '(05)',
+    heading: 'Custom+Code',
+    body: 'Bespoke components, WebGL experiments and tailor-made solutions that push the medium beyond templates.',
+    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ProjectDesign2.webp',
+  },
+];
+---
+
+<section class="services" data-services aria-label="Services">
+
+  <!-- Background fullbleed por item — absoluto, preenche a section inteira -->
+  <div class="services__bgs" aria-hidden="true">
+    {services.map((s, i) => (
+      <div class="services__bg" data-services-bg={i}>
+        <div class="services__bg-mask services__bg-mask--top"></div>
+        <img src={s.image} alt="" class="services__bg-img" loading="lazy" decoding="async" />
+        <div class="services__bg-mask services__bg-mask--bottom"></div>
+        <div class="services__bg-overlay"></div>
+      </div>
+    ))}
+  </div>
+
+  <div class="services__container">
+
+    <!-- Label -->
+    <div class="services__label-wrap" data-services-label>
+      <p class="services__label">[ What We Do ]</p>
+    </div>
+
+    <!-- Lista -->
+    <div class="services__list" data-services-list>
+      {services.map((s, i) => (
+        <div class="services__item" data-services-item={i}>
+
+          <!-- Fonte de imagem oculta para o follower -->
+          <div class="services__visual" data-services-visual aria-hidden="true">
+            <img src={s.image} alt="" loading="lazy" decoding="async" />
+          </div>
+
+          <div class="services__item-inner">
+
+            <!-- Esquerda: número + heading -->
+            <div class="services__item-left">
+              <span class="services__number">{s.number}</span>
+              <h3 class="services__heading">{s.heading}</h3>
+            </div>
+
+            <!-- Direita: descrição -->
+            <p class="services__body">{s.body}</p>
+
+          </div>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     ServicesSection
+     ============================================================ */
+  .services {
+    position: relative;
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow: hidden;
+    padding-block: var(--space-xl);
+  }
+
+  /* --- Background fullbleed --- */
+  .services__bgs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .services__bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .services__bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  .services__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 10, 10, 0.65);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    z-index: 2;
+  }
+
+  .services__bg-mask--top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 280px;
+    background: linear-gradient(180deg, var(--color-bg), transparent);
+    z-index: 3;
+  }
+
+  .services__bg-mask--bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 280px;
+    background: linear-gradient(0deg, var(--color-bg), transparent);
+    z-index: 3;
+  }
+
+  /* Imagem fonte — oculta, só usada como referência para clonar */
+  .services__visual {
+    display: none;
+  }
+
+  /* --- Container --- */
+  .services__container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--container-padding);
+  }
+
+  /* --- Label --- */
+  .services__label-wrap {
+    margin-bottom: var(--space-lg);
+  }
+
+  .services__label {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: var(--caps);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* --- Lista --- */
+  .services__list {
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Dim effect via :has() — puro CSS */
+  .services__list:has(.services__item:hover) .services__item {
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
+  }
+
+  .services__list .services__item:hover {
+    color: var(--color-text);
+  }
+
+  /* --- Item --- */
+  .services__item {
+    position: relative;
+    border-bottom: 1px solid var(--color-border);
+    cursor: default;
+  }
+
+  .services__item-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+    padding-block: clamp(1.75rem, 2.8vw, 3rem);
+    align-items: center;
+  }
+
+  /* Esquerda: número + heading */
+  .services__item-left {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: var(--space-sm);
+    align-items: center;
+  }
+
+  .services__number {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: var(--caps);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+  }
+
+  .services__heading {
+    font-family: var(--font-display);
+    font-size: var(--case-heading);
+    font-weight: 400;
+    line-height: 0.88;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  /* Direita: descrição — alinhada à borda direita do grid */
+  .services__body {
+    font-family: var(--font-primary);
+    font-size: var(--paragraph-s);
+    line-height: 1.55;
+    color: inherit;
+    max-width: 332px;
+    margin: 0;
+    justify-self: end;
+  }
+
+  /* --- Responsivo --- */
+  @media (max-width: 991px) {
+    .services__item-inner {
+      grid-template-columns: 1fr;
+    }
+    .services__follower {
+      display: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .services {
+      padding-block: var(--space-lg);
+    }
+    .services__label-wrap {
+      margin-bottom: var(--space-md);
+    }
+    .services__item-inner {
+      padding-block: clamp(1.25rem, 3vw, 2rem);
+      gap: var(--space-sm);
+    }
+    .services__item-left {
+      grid-template-columns: 1fr;
+      gap: var(--space-xs);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .services__item-left {
+      grid-template-columns: auto;
+      word-break: break-all;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .services__bg {
+      transition: none;
+    }
+  }
+</style>
+
+<!-- Follower appended to body via JS — precisa de estilos globais porque
+     fica fora do #smooth-content e não recebe o hash de escopo do Astro -->
+<style is:global>
+  .services__follower {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: clamp(180px, 18em, 300px);
+    aspect-ratio: 1 / 1.25;
+    border-radius: 0.75em;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    will-change: transform;
+  }
+
+  .services__follower-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .services__follower-inner img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    will-change: transform;
+  }
+
+  @media (max-width: 991px) {
+    .services__follower {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // ServicesSection — bg switching + GSAP cursor follower + entrance
+  // ============================================================
+
+  type Gsap = any;
+  type ScrollTriggerLib = any;
+
+  function initServices(): void {
+    const gsap = (window as any).gsap as Gsap | undefined;
+    const ScrollTrigger = (window as any).ScrollTrigger as ScrollTriggerLib | undefined;
+
+    if (!gsap || !ScrollTrigger) {
+      window.addEventListener('load', initServices, { once: true });
+      return;
+    }
+
+    const section = document.querySelector<HTMLElement>('[data-services]');
+    if (!section) return;
+    if (section.dataset.servicesInitialized === 'true') return;
+    section.dataset.servicesInitialized = 'true';
+
+    const items = Array.from(section.querySelectorAll<HTMLElement>('[data-services-item]'));
+    const bgs   = Array.from(section.querySelectorAll<HTMLElement>('[data-services-bg]'));
+    const list = section.querySelector<HTMLElement>('[data-services-list]');
+
+    // ---- Cursor follower — criado e appendado ao body para escapar do
+    //      #smooth-content transformado (ScrollSmoother usa transform: translateY,
+    //      quebrando position: fixed em elementos filhos) ----
+    const follower = document.createElement('div');
+    follower.className = 'services__follower';
+    follower.setAttribute('aria-hidden', 'true');
+
+    const followerInner = document.createElement('div');
+    followerInner.className = 'services__follower-inner';
+    follower.appendChild(followerInner);
+    document.body.appendChild(follower);
+
+    if (follower && followerInner) {
+      // Centra o follower no cursor
+      gsap.set(follower, { xPercent: -50, yPercent: -50 });
+
+      const xTo = gsap.quickTo(follower, 'x', { duration: 0.6, ease: 'power3' });
+      const yTo = gsap.quickTo(follower, 'y', { duration: 0.6, ease: 'power3' });
+
+      window.addEventListener('mousemove', (e: MouseEvent) => {
+        xTo(e.clientX);
+        yTo(e.clientY);
+      });
+
+      let currentImg: HTMLElement | null = null;
+
+      items.forEach((item, i) => {
+        const visual = item.querySelector<HTMLElement>('[data-services-visual]');
+        const srcImg = visual?.querySelector<HTMLImageElement>('img');
+
+        item.addEventListener('mouseenter', () => {
+          // Troca background fullbleed
+          bgs.forEach((bg, j) => {
+            (bg as HTMLElement).style.opacity = j === i ? '1' : '0';
+          });
+
+          // Mostra o follower
+          gsap.to(follower, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+
+          // Anima saída do conteúdo anterior
+          if (currentImg) {
+            const outEl = currentImg;
+            currentImg = null;
+            gsap.to(outEl, {
+              yPercent: -100,
+              duration: 0.4,
+              ease: 'power2.inOut',
+              onComplete: () => outEl.remove(),
+            });
+          }
+
+          // Clona e anima entrada da nova imagem
+          if (srcImg) {
+            const clone = srcImg.cloneNode(true) as HTMLImageElement;
+            followerInner.appendChild(clone);
+            currentImg = clone;
+
+            gsap.fromTo(
+              clone,
+              { yPercent: 100 },
+              { yPercent: 0, duration: 0.5, ease: 'power2.inOut' }
+            );
+          }
+        });
+
+        item.addEventListener('mouseleave', () => {
+          (bgs[i] as HTMLElement).style.opacity = '0';
+        });
+      });
+
+      // Esconde follower ao sair da lista
+      if (list) {
+        list.addEventListener('mouseleave', () => {
+          gsap.to(follower, { opacity: 0, duration: 0.3, ease: 'power2.in' });
+
+          if (currentImg) {
+            const outEl = currentImg;
+            currentImg = null;
+            gsap.to(outEl, {
+              yPercent: -100,
+              duration: 0.4,
+              ease: 'power2.inOut',
+              onComplete: () => outEl.remove(),
+            });
+          }
+        });
+      }
+    }
+
+    // ---- Entrada: label + itens em stagger ----
+    const label = section.querySelector<HTMLElement>('[data-services-label]');
+    if (label) {
+      gsap.from(label, {
+        y: 16,
+        opacity: 0,
+        duration: 0.7,
+        ease: 'expo.out',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 80%',
+        },
+      });
+    }
+
+    gsap.from(items, {
+      y: 20,
+      opacity: 0,
+      duration: 0.75,
+      ease: 'expo.out',
+      stagger: 0.08,
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 70%',
+      },
+    });
+  }
+
+  initServices();
+</script>

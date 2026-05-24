@@ -37,13 +37,16 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0a0a0a" />
 
     <!-- SEO -->
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
+    <meta name="robots" content="index, follow" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -60,6 +63,33 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": `${Astro.site}#person`,
+          "name": "Jonathan Rocha",
+          "jobTitle": "Creative Developer",
+          "description": description,
+          "url": Astro.site,
+          "sameAs": [
+            "https://github.com/jonathan-webflow",
+          ],
+          "knowsAbout": ["Webflow", "Shopify", "GSAP", "Creative Development", "Motion Design", "UI/UX Design"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": `${Astro.site}#website`,
+          "url": Astro.site,
+          "name": "Jonathan Rocha — Creative Developer",
+          "description": description,
+          "author": { "@id": `${Astro.site}#person` }
+        }
+      ]
+    })} />
 
     <!-- Preconnect para CDNs -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />

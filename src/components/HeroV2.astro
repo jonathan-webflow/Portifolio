@@ -66,13 +66,17 @@ const medias = Object.keys(heroMediaMods)
   <!-- h1 visível para SEO + leitores de tela (visually hidden) -->
   <h1 class="hero__sr-title">Jonathan Rocha — Creative Developer</h1>
 
-  <!-- Navbar 3-col: nome como brand mark à esquerda -->
+  <!-- Navbar 3-col — HTML idêntico ao v1 -->
   <header class="nav-container" aria-label="Primary">
     <div class="nav-container__menu">
-      <a href="/" class="nav-brand" aria-label="Jonathan Rocha — home">
-        <span class="nav-brand__line">Jonathan</span>
-        <span class="nav-brand__line">Rocha</span>
-      </a>
+      {nav.map((item) => (
+        <a href={item.href} class="nav-button">
+          <span class="nav-button__text">
+            {item.label}
+            <span class="nav-button__fill" aria-hidden="true"></span>
+          </span>
+        </a>
+      ))}
     </div>
 
     <div class="nav-container__location">
@@ -99,13 +103,14 @@ const medias = Object.keys(heroMediaMods)
     </div>
   </header>
 
-  <!-- Título massiço — Creative / Developer em layout editorial -->
+  <!-- Nome massiço — aria-hidden porque o h1 acima cobre semântica -->
   <div class="hero__name" aria-hidden="true">
     <div class="hero__name-line hero__name-line--1">
-      <p class="hero__name-text">Creative</p>
+      <p class="hero__name-text">Jonathan</p>
     </div>
     <div class="hero__name-line hero__name-line--2">
-      <p class="hero__name-text hero__name-text--2">Developer</p>
+      <p class="hero__name-text hero__name-text--2">Rocha</p>
+      <sup class="hero__tm">™</sup>
     </div>
   </div>
 
@@ -117,7 +122,7 @@ const medias = Object.keys(heroMediaMods)
   <!-- Rodapé: tagline + stats | SEE WORK -->
   <footer class="hero__footer">
     <div class="hero__bottom-left">
-      <p class="hero__tagline">Jonathan Rocha</p>
+      <p class="hero__tagline">{tagline}</p>
       <div class="hero__stats">
         <span class="hero__stat-n">30+</span>
         <span class="hero__stat-space"></span>
@@ -335,7 +340,7 @@ const medias = Object.keys(heroMediaMods)
         '.hero .hero__description-wrap',
         '.hero .hero__bottom-left',
         '.hero .hero__cta',
-        '.nav-container__menu .nav-brand',
+        '.nav-container__menu .nav-button',
         '.nav-container__available .nav-button',
         '.nav-container__location .nav-button',
       ], { visibility: 'visible' });
@@ -363,10 +368,11 @@ const medias = Object.keys(heroMediaMods)
           opacity: 0,
           duration: 0.9,
         }, 0.45)
-        .from('.nav-container__menu .nav-brand', {
+        .from('.nav-container__menu .nav-button', {
           y: 18,
           opacity: 0,
           duration: 0.7,
+          stagger: 0.07,
         }, 0.45)
         .from('.nav-container__available .nav-button', {
           y: 18,
@@ -414,7 +420,7 @@ const medias = Object.keys(heroMediaMods)
   .hero .hero__description-wrap,
   .hero .hero__bottom-left,
   .hero .hero__cta,
-  .nav-container__menu .nav-brand,
+  .nav-container__menu .nav-button,
   .nav-container__available .nav-button,
   .nav-container__location .nav-button {
     visibility: hidden;
@@ -483,30 +489,6 @@ const medias = Object.keys(heroMediaMods)
     gap: clamp(2px, 0.4vw, 8px);
     justify-self: start;
     align-items: center;
-  }
-
-  /* Nome como brand mark — duas linhas empilhadas */
-  .nav-brand {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    text-decoration: none;
-    color: var(--color-text);
-    line-height: 1.1;
-  }
-
-  .nav-brand__line {
-    display: block;
-    font-family: var(--font-display);
-    font-size: clamp(0.85rem, 1.1vw, 1.2rem);
-    font-weight: 400;
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
-    transition: color 0.25s ease;
-  }
-
-  .nav-brand:hover .nav-brand__line {
-    color: var(--color-text-muted);
   }
 
   .hero .nav-container__available {
@@ -683,9 +665,9 @@ const medias = Object.keys(heroMediaMods)
     overflow: visible;
   }
 
-  /* Developer — mais longo que Rocha, font menor para caber */
+  /* ROCHA — ~10% menor que v1 para não cortar + assimetria editorial */
   .hero__name-text--2 {
-    font-size: clamp(9vw, 12vw, 13vw);
+    font-size: clamp(11vw, 15vw, 16vw);
     white-space: nowrap;
   }
 

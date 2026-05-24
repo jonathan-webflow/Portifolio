@@ -217,3 +217,33 @@ npm run build    # gera ./dist/ — Vercel deploya automaticamente
 ```
 
 Atualizar `site` em `astro.config.mjs` após configurar o domínio na Vercel.
+
+---
+
+## ✅ Checklist pré-lançamento — Modern Web 100/100
+
+> **Regra:** antes do deploy final em produção, todos os itens abaixo devem estar concluídos.
+> O projeto está atualmente em ~90/100. Execute este checklist na sessão de finalização.
+
+### Obrigatório antes de ir ao ar
+- [ ] Criar `public/og-default.jpg` — 1200×630px, exportar do Figma (usado em og:image e twitter:card)
+- [ ] Atualizar `site` em `astro.config.mjs` com a URL real da Vercel (não `portfolio2026.vercel.app`)
+- [ ] Atualizar URL do Sitemap em `public/robots.txt` com o domínio real
+- [ ] Preencher URLs reais nas redes sociais do `ContactSection` (github, instagram, linkedin, dribbble)
+- [ ] Testar `fetchpriority="high"` na imagem LCP — hero trail ou imagem de destaque
+
+### Melhorias de qualidade (CSS moderno)
+- [ ] `content-visibility: auto` nas seções abaixo do fold (AboutSection, HistorySection, etc.)
+- [ ] `@property` para CSS custom properties que são animadas pelo GSAP (permite GPU interpolation)
+- [ ] `@layer` no `global.css` para organizar a cascade (reset → tokens → base → components)
+- [ ] Considerar `color-mix()` / `oklch()` para variantes dos tokens de cor (hover states, transparências)
+
+### Validação final
+```bash
+# Rodar antes do merge para main:
+npm run build          # zero erros
+# Checar no browser:
+# → Lighthouse score ≥ 90 em Performance, Accessibility, Best Practices, SEO
+# → og:image aparece no https://cards-dev.twitter.com/validator
+# → JSON-LD válido em https://validator.schema.org
+```

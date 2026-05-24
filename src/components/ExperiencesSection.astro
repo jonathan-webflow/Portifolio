@@ -1,0 +1,370 @@
+---
+/**
+ * ExperiencesSection.astro — Lista de experiências com directional hover tile
+ *
+ * Comportamento:
+ *   • 4 rows em layout 3-col (role+type | company | period)
+ *   • Hover: tile de cor desliza de cima ou baixo conforme direção do cursor
+ *   • Role title vira --color-accent no hover
+ *   • Entrada: GSAP ScrollTrigger stagger fade+slide
+ */
+
+interface Experience {
+  role: string;
+  company: string;
+  type: string;
+  period: string;
+  href: string;
+}
+
+const experiences: Experience[] = [
+  {
+    role: 'Creative Dev & Engineer',
+    company: 'Carthagos',
+    type: 'Webflow · GSAP · WebGL',
+    period: '2023 — Now',
+    href: 'https://carthagos.com',
+  },
+  {
+    role: 'Creative Developer',
+    company: 'BioBlanks',
+    type: 'Motion · Interactions',
+    period: '2025 — 2026',
+    href: '#',
+  },
+  {
+    role: 'Webflow Designer',
+    company: 'CloudWalk, Inc.',
+    type: 'Brand · Identity · IX',
+    period: '2024 — 2025',
+    href: '#',
+  },
+  {
+    role: 'Web Designer & Webflow Dev',
+    company: 'Arbo',
+    type: 'Web Design · Templates',
+    period: '2022 — 2024',
+    href: '#',
+  },
+];
+---
+
+<section class="exp" data-exp aria-label="Work Experience">
+
+  <!-- Eyebrow / section label -->
+  <div class="exp__header" data-exp-header>
+    <p class="exp__label">[ Work Experience ]</p>
+  </div>
+
+  <!-- Cabeçalho das colunas -->
+  <div class="exp__info">
+    <div class="exp__col exp__col--role">
+      <p class="exp__eyebrow">Role</p>
+    </div>
+    <div class="exp__col exp__col--company">
+      <p class="exp__eyebrow">Company</p>
+    </div>
+    <div class="exp__col exp__col--period">
+      <p class="exp__eyebrow">Period</p>
+    </div>
+  </div>
+
+  <!-- Lista de itens -->
+  <div class="exp__list">
+    {experiences.map((item) => (
+      <a
+        href={item.href}
+        class="exp__item"
+        data-exp-item
+        rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+        target={item.href.startsWith('http') ? '_blank' : undefined}
+      >
+        <!-- Tile direcional -->
+        <div class="exp__tile" data-exp-tile></div>
+
+        <!-- Borda superior do item -->
+        <div class="exp__item-border"></div>
+
+        <div class="exp__col exp__col--role">
+          <p class="exp__role">{item.role}</p>
+          <p class="exp__type">{item.type}</p>
+        </div>
+        <div class="exp__col exp__col--company">
+          <p class="exp__text">{item.company}</p>
+        </div>
+        <div class="exp__col exp__col--period">
+          <p class="exp__text">{item.period}</p>
+        </div>
+      </a>
+    ))}
+  </div>
+
+  <!-- Borda inferior -->
+  <div class="exp__bottom-border"></div>
+
+</section>
+
+<style>
+  /* ============================================================
+     ExperiencesSection — Directional Hover Tile
+     ============================================================ */
+  .exp {
+    position: relative;
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding-block: var(--space-xl);
+    padding-inline: var(--container-padding);
+    max-width: var(--container-max);
+    margin-inline: auto;
+  }
+
+  /* --- Eyebrow label --- */
+  .exp__header {
+    margin-bottom: var(--space-lg);
+  }
+
+  .exp__label {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: var(--caps);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* --- Cabeçalho de colunas --- */
+  .exp__info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    padding-block-end: 1.25em;
+    padding-inline: 1em;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .exp__eyebrow {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: var(--caps);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* --- Item --- */
+  .exp__item {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    padding-block: clamp(1.25rem, 2.2vw, 2.25rem);
+    padding-inline: 1em;
+    text-decoration: none;
+    color: var(--color-text);
+    overflow: hidden;
+  }
+
+  /* Tile direcional */
+  .exp__tile {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-100%);
+    will-change: transform;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Borda superior do item */
+  .exp__item-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--color-border);
+    z-index: 2;
+  }
+
+  /* Borda inferior da lista */
+  .exp__bottom-border {
+    width: 100%;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  /* --- Colunas --- */
+  .exp__col {
+    position: relative;
+    z-index: 1;
+  }
+
+  .exp__col--role {
+    min-width: 35%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+  }
+
+  .exp__col--company {
+    flex: 1;
+  }
+
+  .exp__col--period {
+    flex: none;
+    min-width: 8em;
+    text-align: right;
+  }
+
+  /* --- Tipografia dos itens --- */
+  .exp__role {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2.8vw, 2.5rem);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    margin: 0;
+    transition: color 0.25s ease;
+  }
+
+  .exp__type {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: var(--caps);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .exp__text {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: clamp(0.8rem, 1.1vw, 1rem);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  /* --- Hover: role vira accent --- */
+  .exp__item:hover .exp__role {
+    color: var(--color-accent);
+  }
+
+  /* --- Responsivo --- */
+  @media (max-width: 767px) {
+    .exp {
+      padding-block: var(--space-lg);
+    }
+    .exp__info {
+      display: none;
+    }
+    .exp__item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.4em;
+    }
+    .exp__col--company {
+      display: none;
+    }
+    .exp__col--period {
+      text-align: left;
+    }
+    .exp__col--role {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+
+  /* Acessibilidade */
+  @media (prefers-reduced-motion: reduce) {
+    .exp__tile {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // ExperiencesSection — Directional hover tile + GSAP entrance
+  // ============================================================
+
+  type Direction = 'top' | 'bottom';
+
+  type Gsap = any;
+  type ScrollTriggerLib = any;
+
+  function initExp(): void {
+    const gsap = (window as any).gsap as Gsap | undefined;
+    const ScrollTrigger = (window as any).ScrollTrigger as ScrollTriggerLib | undefined;
+
+    if (!gsap || !ScrollTrigger) {
+      window.addEventListener('load', initExp, { once: true });
+      return;
+    }
+
+    const section = document.querySelector<HTMLElement>('[data-exp]');
+    if (!section) return;
+    if (section.dataset.expInitialized === 'true') return;
+    section.dataset.expInitialized = 'true';
+
+    const items = Array.from(section.querySelectorAll<HTMLElement>('[data-exp-item]'));
+
+    // ---- Directional tile ----
+    const dirMap: Record<Direction, string> = {
+      top:    'translateY(-100%)',
+      bottom: 'translateY(100%)',
+    };
+
+    function getDir(e: MouseEvent, el: HTMLElement): Direction {
+      const { top, height } = el.getBoundingClientRect();
+      return (e.clientY - top) < height / 2 ? 'top' : 'bottom';
+    }
+
+    items.forEach((item) => {
+      const tile = item.querySelector<HTMLElement>('[data-exp-tile]');
+      if (!tile) return;
+
+      item.addEventListener('mouseenter', (e) => {
+        const dir = getDir(e as MouseEvent, item);
+        tile.style.transition = 'none';
+        tile.style.transform = dirMap[dir];
+        void tile.offsetHeight; // force reflow
+        tile.style.transition = '';
+        tile.style.transform = 'translateY(0)';
+        item.dataset.status = `enter-${dir}`;
+      });
+
+      item.addEventListener('mouseleave', (e) => {
+        const dir = getDir(e as MouseEvent, item);
+        item.dataset.status = `leave-${dir}`;
+        tile.style.transform = dirMap[dir];
+      });
+    });
+
+    // ---- GSAP entrance ----
+    const header = section.querySelector<HTMLElement>('[data-exp-header]');
+    if (header) {
+      gsap.from(header, {
+        y: 12,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'expo.out',
+        scrollTrigger: { trigger: section, start: 'top 80%' },
+      });
+    }
+
+    gsap.from(items, {
+      y: 20,
+      opacity: 0,
+      duration: 0.7,
+      ease: 'expo.out',
+      stagger: 0.07,
+      scrollTrigger: { trigger: section, start: 'top 72%' },
+    });
+  }
+
+  initExp();
+</script>

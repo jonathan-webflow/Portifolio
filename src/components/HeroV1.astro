@@ -1,20 +1,20 @@
 ---
 /**
- * Hero.astro — Editorial layout (Figma node 615-609)
+ * Hero.astro — Mouse trail image effect + Studio Primal-style navbar
  *
- * "JONATHAN" preenche a largura na linha 1 (esquerda)
- * "ROCHA™"   preenche a direita na linha 2 (right-aligned)
- * Tagline + stats no rodapé esquerdo · SEE WORK ↗ no rodapé direito
+ * Navbar (3 colunas):
+ *   [ nav menu ]  [ email (copy) ]  [ availability ]
  *
- * Preservado do v1 sem alterações:
- *   • Mouse trail (createMedia + elastic/back easing)
- *   • loader:complete listener + 4s fallback
- *   • initLocationClock() + timezone
- *   • Navbar 3-col (menu | location+clock | availability dot)
- *   • nav-button__fill hover (accent slide-up)
- *   • prefers-reduced-motion guard
+ * Cada botão tem um "fill" que sobe de baixo no hover (cor de accent #FF0000).
+ * O email é copiável (navigator.clipboard) com um toast "Copied to clipboard".
+ * O indicador de disponibilidade tem um ponto vermelho pulsante.
  *
- * Rollback: em index.astro trocar import para HeroV1.astro
+ * Mouse trail:
+ *   - Ao mover o cursor horizontalmente, imagens surgem no ponto do mouse
+ *   - Trail NÃO é criado na faixa vertical do navbar (para não atrapalhar clicks)
+ *   - Cicla pelas 10 imagens pré-carregadas com elastic bounce + back.in
+ *
+ * GSAP: carregado globalmente via Layout.astro
  */
 
 import type { ImageMetadata } from 'astro';
@@ -26,8 +26,8 @@ interface NavItem {
 }
 
 interface Props {
-  tagline?: string;
-  description?: string;
+  title?: string;
+  text?: string;
   nav?: NavItem[];
   available?: boolean;
   availableLabel?: string;
@@ -37,13 +37,13 @@ interface Props {
 }
 
 const {
-  tagline = 'Creative Developer',
-  description = 'Crafting digital experiences that feel different, convert better, and leave brands impossible to forget.',
+  title = 'Creative Developer Building Experiences That Convert',
+  text = 'Crafting stunning ideas that connect, engage, and deliver results for your brand.',
   nav = [
     { label: 'Projects', href: '#projects' },
-    { label: 'About',    href: '/about' },
-    { label: 'Index',    href: '/index' },
-    { label: 'Play',     href: '/play' },
+    { label: 'About', href: '/about' },
+    { label: 'Index', href: '/index' },
+    { label: 'Play', href: '/play' },
   ],
   available = true,
   availableLabel = 'available',
@@ -62,19 +62,20 @@ const medias = Object.keys(heroMediaMods)
 ---
 
 <section class="hero" data-timezone={locationTimezone}>
-
-  <!-- h1 visível para SEO + leitores de tela (visually hidden) -->
-  <h1 class="hero__sr-title">Jonathan Rocha — Creative Developer</h1>
-
-  <!-- Navbar 3-col: nome como brand mark à esquerda -->
   <header class="nav-container" aria-label="Primary">
+    <!-- Esquerda: menu — hover igual ao AVAILABLE (fill accent + texto contrast) -->
     <div class="nav-container__menu">
-      <a href="/" class="nav-brand" aria-label="Jonathan Rocha — home">
-        <span class="nav-brand__line">Jonathan</span>
-        <span class="nav-brand__line">Rocha</span>
-      </a>
+      {nav.map((item) => (
+        <a href={item.href} class="nav-button">
+          <span class="nav-button__text">
+            {item.label}
+            <span class="nav-button__fill" aria-hidden="true"></span>
+          </span>
+        </a>
+      ))}
     </div>
 
+    <!-- Centro: localização + hora ao vivo -->
     <div class="nav-container__location">
       <div class="nav-button nav-button--location" aria-label="Localização e hora local">
         <span class="nav-button__dot-wrap" aria-hidden="true">
@@ -86,6 +87,7 @@ const medias = Object.keys(heroMediaMods)
       </div>
     </div>
 
+    <!-- Direita: disponibilidade -->
     <div class="nav-container__available">
       <div class="nav-button nav-button--toggle" data-state={available ? 'on' : 'off'}>
         <span class="nav-button__dot-wrap" aria-hidden="true">
@@ -99,42 +101,11 @@ const medias = Object.keys(heroMediaMods)
     </div>
   </header>
 
-  <!-- Título massiço — Creative / Developer em layout editorial -->
-  <div class="hero__name" aria-hidden="true">
-    <div class="hero__name-line hero__name-line--1">
-      <p class="hero__name-text">Creative</p>
-    </div>
-    <div class="hero__name-line hero__name-line--2">
-      <p class="hero__name-text hero__name-text--2">Developer</p>
-    </div>
+  <div class="container">
+    <h1 class="title">{title}</h1>
+    <p class="text">{text}</p>
   </div>
 
-  <!-- Texto de apoio — posicionado entre o nome e o rodapé (estilo Figma) -->
-  <div class="hero__description-wrap">
-    <p class="hero__description">{description}</p>
-  </div>
-
-  <!-- Rodapé: tagline + stats | SEE WORK -->
-  <footer class="hero__footer">
-    <div class="hero__bottom-left">
-      <p class="hero__tagline">Jonathan Rocha</p>
-      <div class="hero__stats">
-        <span class="hero__stat-n">30+</span>
-        <span class="hero__stat-space"></span>
-        <span class="hero__stat-l">( Projects )</span>
-        <span class="hero__stat-sep" aria-hidden="true"> · </span>
-        <span class="hero__stat-n">4Y</span>
-        <span class="hero__stat-space"></span>
-        <span class="hero__stat-l">( Experience )</span>
-      </div>
-    </div>
-    <a href="#projects" class="hero__cta">
-      SEE WORK
-      <span class="hero__cta-arrow" aria-hidden="true">↗</span>
-    </a>
-  </footer>
-
-  <!-- Imagens pré-carregadas para o mouse trail (ocultas) -->
   <div class="medias">
     {medias.map((src) => (
       <Image
@@ -147,15 +118,15 @@ const medias = Object.keys(heroMediaMods)
       />
     ))}
   </div>
-
 </section>
 
 <script>
   // ============================================================
-  // Mouse trail — idêntico ao v1
+  // Mouse trail
   // ============================================================
   function initMouseTrail() {
     const gsap = (window as any).gsap;
+
     if (!gsap) {
       window.addEventListener('load', initMouseTrail, { once: true });
       return;
@@ -166,6 +137,7 @@ const medias = Object.keys(heroMediaMods)
 
     const navbar = root.querySelector<HTMLElement>('.nav-container');
 
+    // Coletar srcs das imagens pré-carregadas
     const images: string[] = [];
     root.querySelectorAll<HTMLImageElement>('.medias img').forEach((image) => {
       const src = image.currentSrc || image.getAttribute('src');
@@ -182,9 +154,6 @@ const medias = Object.keys(heroMediaMods)
       resetDist = window.innerWidth / 15;
     });
 
-    // Limite inferior do trail: acima do bloco de descrição
-    const descWrap = root.querySelector<HTMLElement>('.hero__description-wrap');
-
     root.addEventListener('mousemove', (e: MouseEvent) => {
       const val = e.clientX;
 
@@ -197,20 +166,15 @@ const medias = Object.keys(heroMediaMods)
       incr += Math.abs(val - oldIncr);
       oldIncr = val;
 
-      // Zona morta superior — abaixo da navbar
+      // Bloqueia a faixa do navbar + buffer igual ao raio da imagem do trail.
+      // A imagem é 15vw e usa yPercent: -50 (centro no cursor), portanto
+      // metade (7.5vw) se estende PARA CIMA do ponto de spawn. Se o cursor
+      // estiver logo abaixo do navbar, a metade superior da imagem ainda
+      // cobriria os botões. Adicionamos esse raio como buffer.
       if (navbar) {
         const navRect = navbar.getBoundingClientRect();
         const trailHalfHeight = window.innerWidth * 0.15 * 0.5;
         if (e.clientY <= navRect.bottom + trailHalfHeight) {
-          incr = 0;
-          return;
-        }
-      }
-
-      // Zona morta inferior — abaixo do texto de descrição/footer
-      if (descWrap) {
-        const descRect = descWrap.getBoundingClientRect();
-        if (e.clientY >= descRect.top) {
           incr = 0;
           return;
         }
@@ -226,6 +190,7 @@ const medias = Object.keys(heroMediaMods)
       const image = document.createElement('img');
       image.setAttribute('src', images[indexImg]);
       image.classList.add('trail-img');
+
       root!.appendChild(image);
 
       const tl = gsap.timeline({
@@ -268,7 +233,7 @@ const medias = Object.keys(heroMediaMods)
   initMouseTrail();
 
   // ============================================================
-  // Relógio ao vivo — idêntico ao v1
+  // Relógio ao vivo — lê timezone via data-attribute da section
   // ============================================================
   function initLocationClock() {
     const clockEl = document.getElementById('hero-clock') as HTMLTimeElement | null;
@@ -295,8 +260,7 @@ const medias = Object.keys(heroMediaMods)
   }
 
   // ============================================================
-  // Hero entrance — mesma lógica do v1, novos seletores
-  // SplitText aplicado às duas linhas do nome
+  // Hero entrance — SplitText no .title (lines+words mask) + cascata
   // ============================================================
   function initHeroEntrance() {
     const gsap = (window as any).gsap;
@@ -313,60 +277,42 @@ const medias = Object.keys(heroMediaMods)
 
       gsap.registerPlugin(SplitText);
 
-      const nameEls = Array.from(
-        document.querySelectorAll<HTMLElement>('.hero .hero__name-text')
-      );
-      if (!nameEls.length) return;
+      const titleEl = document.querySelector('.hero .title');
+      if (!titleEl) return;
 
-      // SplitText em cada linha, coleta todas as words
-      const allWords: HTMLElement[] = [];
-      nameEls.forEach((el) => {
-        const s = new SplitText(el, {
-          type: 'lines,words',
-          mask: 'lines',
-          linesClass: 'split-line',
-          wordsClass: 'split-word',
-        });
-        allWords.push(...(s.words as HTMLElement[]));
+      const split = new SplitText(titleEl, {
+        type: 'lines,words',
+        mask: 'lines',
+        linesClass: 'split-line',
+        wordsClass: 'split-word',
       });
 
       gsap.set([
-        ...nameEls,
-        '.hero .hero__description-wrap',
-        '.hero .hero__bottom-left',
-        '.hero .hero__cta',
-        '.nav-container__menu .nav-brand',
+        '.hero .title',
+        '.hero .text',
+        '.nav-container__menu .nav-button',
         '.nav-container__available .nav-button',
         '.nav-container__location .nav-button',
       ], { visibility: 'visible' });
 
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
 
-      tl.from(allWords, {
+      tl.from(split.words, {
           yPercent: 115,
           opacity: 0,
           duration: 1.1,
           stagger: 0.045,
         }, 0)
-        .from('.hero .hero__description-wrap', {
-          y: 24,
+        .from('.hero .text', {
+          y: 28,
           opacity: 0,
           duration: 0.9,
         }, 0.30)
-        .from('.hero .hero__bottom-left', {
-          y: 28,
-          opacity: 0,
-          duration: 0.9,
-        }, 0.38)
-        .from('.hero .hero__cta', {
-          y: 28,
-          opacity: 0,
-          duration: 0.9,
-        }, 0.45)
-        .from('.nav-container__menu .nav-brand', {
+        .from('.nav-container__menu .nav-button', {
           y: 18,
           opacity: 0,
           duration: 0.7,
+          stagger: 0.07,
         }, 0.45)
         .from('.nav-container__available .nav-button', {
           y: 18,
@@ -388,7 +334,7 @@ const medias = Object.keys(heroMediaMods)
     })();
   }
 
-  // Aguarda o loader antes de iniciar a entrada
+  // Aguarda o loader concluir antes de iniciar a entrance animation
   const loaderEl = document.getElementById('loader');
   if (!loaderEl || loaderEl.style.display === 'none') {
     initHeroEntrance();
@@ -408,13 +354,12 @@ const medias = Object.keys(heroMediaMods)
 
 <style>
   /* ============================================================
-     Estados iniciais — visibility:hidden até GSAP animar
+     Estados iniciais para a animação de entrada
+     Mantidos hidden até o GSAP timeline rodar — evita FOUC
      ============================================================ */
-  .hero .hero__name-text,
-  .hero .hero__description-wrap,
-  .hero .hero__bottom-left,
-  .hero .hero__cta,
-  .nav-container__menu .nav-brand,
+  .hero .title,
+  .hero .text,
+  .nav-container__menu .nav-button,
   .nav-container__available .nav-button,
   .nav-container__location .nav-button {
     visibility: hidden;
@@ -426,16 +371,18 @@ const medias = Object.keys(heroMediaMods)
   }
 
   /* ============================================================
-     Hero — base
+     Hero Section — Mouse trail + Studio Primal navbar
+     Fontes globais (Archivo Narrow + Rethink Sans) vêm do Layout.astro
      ============================================================ */
   .hero {
     width: 100vw;
     height: 100svh;
     overflow: hidden;
     position: relative;
-    background: var(--color-bg);
-    color: var(--color-text);
+    background: #0a0a0a;
+    color: #f1f1f1;
     font-family: var(--font-primary);
+    font-weight: 500;
     font-size: 16px;
     line-height: 1.3;
   }
@@ -448,21 +395,8 @@ const medias = Object.keys(heroMediaMods)
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* h1 visually-hidden para SEO */
-  .hero__sr-title {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
   /* ============================================================
-     NAVBAR — 3 colunas — idêntico ao v1
+     NAVBAR — 3 colunas (menu | email | availability)
      ============================================================ */
   .hero .nav-container {
     position: absolute;
@@ -474,7 +408,7 @@ const medias = Object.keys(heroMediaMods)
     align-items: center;
     gap: 2vw;
     width: 100%;
-    padding: 16px var(--container-padding);
+    padding: 16px clamp(20px, 3vw, 40px);
     z-index: 10;
   }
 
@@ -483,30 +417,6 @@ const medias = Object.keys(heroMediaMods)
     gap: clamp(2px, 0.4vw, 8px);
     justify-self: start;
     align-items: center;
-  }
-
-  /* Nome como brand mark — duas linhas empilhadas */
-  .nav-brand {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    text-decoration: none;
-    color: var(--color-text);
-    line-height: 1.1;
-  }
-
-  .nav-brand__line {
-    display: block;
-    font-family: var(--font-display);
-    font-size: clamp(0.85rem, 1.1vw, 1.2rem);
-    font-weight: 400;
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
-    transition: color 0.25s ease;
-  }
-
-  .nav-brand:hover .nav-brand__line {
-    color: var(--color-text-muted);
   }
 
   .hero .nav-container__available {
@@ -542,7 +452,10 @@ const medias = Object.keys(heroMediaMods)
   }
 
   /* ============================================================
-     NAV BUTTON — fill accent slide-up — idêntico ao v1
+     NAV BUTTON — hover com fill subindo de baixo (accent #FF0000)
+     Estrutura: [.nav-button] > [.nav-button__text (z:2)] + [.nav-button__fill (z:0, translateY(100%))]
+     No hover, o fill anima para translateY(0) cobrindo o botão.
+     Usa transform (GPU-accelerated) — não anima height/width.
      ============================================================ */
   .hero .nav-button {
     position: relative;
@@ -553,7 +466,7 @@ const medias = Object.keys(heroMediaMods)
     padding: 8px 12px;
     border: 0;
     background: transparent;
-    color: var(--color-text);
+    color: #f1f1f1;
     font-family: var(--font-primary);
     font-size: var(--caps);
     font-weight: 500;
@@ -568,6 +481,9 @@ const medias = Object.keys(heroMediaMods)
     user-select: none;
   }
 
+  /* .nav-button__text é o container do fill — overflow:hidden garante que
+     o fill (translateY 100% → 0) não vaze para fora do texto.
+     padding-block: 2px dá um pequeno respiro vertical no highlight. */
   .hero .nav-button__text {
     position: relative;
     display: inline-flex;
@@ -580,11 +496,6 @@ const medias = Object.keys(heroMediaMods)
 
   .hero .nav-button__dot-wrap {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 12px;
-    height: 12px;
     z-index: 2;
     line-height: 1;
   }
@@ -609,12 +520,26 @@ const medias = Object.keys(heroMediaMods)
     color: var(--color-accent-contrast, #fff);
   }
 
-  .hero .nav-button:focus-visible { outline: 0; }
+  .hero .nav-button:focus-visible {
+    outline: 0;
+  }
 
   /* ============================================================
-     AVAILABILITY DOT — idêntico ao v1
+     AVAILABILITY — ponto vermelho pulsante + label
+     Mesmo pattern do fill no hover (apesar de não ser clicável)
+     Se o data-state for "off", o dot fica cinza
      ============================================================ */
-  .hero .nav-button--toggle { cursor: default; }
+  .hero .nav-button--toggle {
+    cursor: default;
+  }
+
+  .hero .nav-button__dot-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    height: 12px;
+  }
 
   .hero .nav-button__dot {
     width: 8px;
@@ -633,186 +558,32 @@ const medias = Object.keys(heroMediaMods)
 
   @keyframes pulse-dot {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.55; transform: scale(0.8); }
+    50% { opacity: 0.55; transform: scale(0.8); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero .nav-button__dot { animation: none; }
+    .hero .nav-button__fill { transition: none; }
   }
 
   /* ============================================================
-     NOME MASSIÇO — editorial full-bleed
+     HERO CONTENT (título + subtítulo)
      ============================================================ */
-  .hero__name {
+  .hero .container {
     position: absolute;
-    left: var(--container-padding);
-    right: var(--container-padding);
-    top: 50%;
-    transform: translateY(-54%);
-    z-index: 1;
-    pointer-events: none;
-    /* overflow: hidden clipa o ROCHA na borda interna definida por `right`,
-       sem interferir na animação vertical do SplitText (mask: lines cria seus
-       próprios wrappers com overflow:hidden antes deste nível) */
-    overflow: hidden;
-  }
-
-  .hero__name-line {
-    overflow: visible;
-    line-height: 1;
-  }
-
-  /* Linha 1: JONATHAN — alinhada à esquerda */
-  .hero__name-line--1 {
-    text-align: left;
-  }
-
-  /* Linha 2: ROCHA™ — alinhada à direita */
-  .hero__name-line--2 {
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-  }
-
-  .hero__name-text {
-    font-family: var(--font-display);
-    font-size: clamp(16vw, 22vw, 26vw);
-    font-weight: 400;
-    line-height: 0.87;
-    letter-spacing: -0.04em;
-    text-transform: uppercase;
-    color: var(--color-text);
-    margin: 0;
-    /* SplitText precisa de overflow visible para as máscaras de linha */
-    overflow: visible;
-  }
-
-  /* Developer — mais longo que Rocha, font menor para caber */
-  .hero__name-text--2 {
-    font-size: clamp(9vw, 12vw, 13vw);
-    white-space: nowrap;
-  }
-
-  .hero__tm {
-    font-family: var(--font-display);
-    font-size: clamp(1.25rem, 2vw, 2.75rem);
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: var(--color-text);
-    margin-top: 0.4em;
-    align-self: flex-start;
-    vertical-align: super;
-  }
-
-  /* ============================================================
-     TEXTO DE APOIO — posicionado entre nome e rodapé (Figma-style)
-     ============================================================ */
-  .hero__description-wrap {
-    position: absolute;
-    left: var(--container-padding);
-    bottom: clamp(5.5rem, 21vh, 13rem);
-    max-width: clamp(220px, 28vw, 440px);
-    z-index: 6;
-  }
-
-  .hero__description {
-    font-family: var(--font-primary);
-    font-size: clamp(0.95rem, 1.5vw, 1.65rem);
-    font-weight: 400;
-    line-height: 1.4;
-    letter-spacing: -0.02em;
-    color: var(--color-text-muted);
-    margin: 0;
-  }
-
-  /* ============================================================
-     RODAPÉ — tagline + stats | SEE WORK
-     ============================================================ */
-  .hero__footer {
-    position: absolute;
-    bottom: var(--space-lg);
-    left: var(--container-padding);
-    right: var(--container-padding);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: var(--space-md);
-    z-index: 6;
-  }
-
-  .hero__bottom-left {
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--space-xs);
-  }
-
-  .hero__tagline {
-    font-family: var(--font-primary);
-    font-size: var(--paragraph-s);
-    font-weight: 400;
-    line-height: 1.4;
-    color: var(--color-text-muted);
-    max-width: 36ch;
-    margin: 0;
-  }
-
-  .hero__stats {
-    display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 0.5em;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: var(--caps);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    gap: clamp(16px, 2vw, 32px);
+    padding-inline: var(--container-padding);
   }
 
-  .hero__stat-n {
-    color: var(--color-text);
-    font-weight: 500;
-  }
-
-  .hero__stat-l {
-    color: var(--color-text-muted);
-    margin-right: 0.2em;
-  }
-
-  .hero__stat-space {
-    width: 0.25em;
-    display: inline-block;
-  }
-
-  .hero__stat-sep {
-    color: var(--color-text-muted);
-    opacity: 0.4;
-    margin-inline: 0.1em;
-  }
-
-  .hero__cta {
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: var(--caps);
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-text);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
-    transition: color 0.25s ease;
-    white-space: nowrap;
-  }
-
-  .hero__cta:hover { color: var(--color-accent); }
-
-  .hero__cta-arrow {
-    display: inline-block;
-    transition: transform 0.25s ease;
-  }
-
-  .hero__cta:hover .hero__cta-arrow {
-    transform: translate(2px, -2px);
-  }
-
-  /* ============================================================
-     MOUSE TRAIL — idêntico ao v1
-     ============================================================ */
+  /* Imagens do trail (criadas via JS, fora do scope do Astro) */
   :global(.hero > img.trail-img) {
     width: 15vw;
     height: 15vw;
@@ -823,6 +594,37 @@ const medias = Object.keys(heroMediaMods)
     pointer-events: none;
   }
 
+  /* Título — display token (Archivo Narrow, impacto editorial) */
+  .hero .title {
+    text-align: center;
+    text-transform: uppercase;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: var(--display);
+    line-height: 0.87;
+    letter-spacing: -0.05em;
+    max-width: clamp(600px, 85vw, 1800px);
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  /* Subtítulo — paragraph-s, lowercase, muted.
+     Contrasta com o h1 em 3 eixos: case (lower vs caps),
+     tom (muted vs branco), peso visual (estreito vs largo).
+     max-width em ~45% cria pirâmide — título largo, sub centralizado. */
+  .hero .text {
+    font-family: var(--font-primary);
+    font-weight: 500;
+    font-size: var(--paragraph-s);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--color-text-muted);
+    max-width: clamp(280px, 42%, 560px);
+    text-align: center;
+    margin: 0;
+  }
+
+  /* Imagens pré-carregadas (ocultas) */
   .hero .medias img {
     width: 1px;
     height: 1px;
@@ -834,7 +636,7 @@ const medias = Object.keys(heroMediaMods)
   }
 
   /* ============================================================
-     MOBILE
+     MOBILE — esconde email/availability, deixa apenas o menu
      ============================================================ */
   @media (max-width: 768px) {
     .hero .nav-container {
@@ -842,69 +644,29 @@ const medias = Object.keys(heroMediaMods)
       grid-template-columns: 1fr;
       gap: 0;
     }
-
     .hero .nav-container__available,
     .hero .nav-container__location {
       display: none;
     }
-
     .hero .nav-container__menu {
       justify-self: stretch;
       justify-content: space-between;
       gap: 0;
     }
-
     .hero .nav-button {
       font-size: 11px;
       padding: 6px 8px;
     }
-
-    .hero__name {
-      left: clamp(12px, 4vw, 24px);
-      right: clamp(12px, 4vw, 24px);
+    .hero .container {
+      gap: 15px;
+      padding-inline: var(--container-padding);
     }
-
-    .hero__name-text {
-      font-size: clamp(14vw, 18vw, 22vw);
+    .hero .title {
+      font-size: clamp(40px, 11vw, 72px);
+      max-width: 100%;
     }
-
-    .hero__name-text--2 {
-      font-size: clamp(11vw, 14vw, 18vw);
+    .hero .text {
+      max-width: 80%;
     }
-
-    .hero__tm {
-      font-size: clamp(1rem, 1.5vw, 1.5rem);
-    }
-
-    .hero__description-wrap {
-      max-width: 90%;
-      bottom: clamp(5rem, 22vh, 8rem);
-    }
-
-    .hero__description {
-      font-size: clamp(0.8rem, 3vw, 1rem);
-    }
-
-    .hero__footer {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--space-sm);
-      bottom: clamp(16px, 4vw, 32px);
-      left: clamp(12px, 4vw, 24px);
-      right: clamp(12px, 4vw, 24px);
-    }
-
-    .hero__tagline {
-      font-size: clamp(0.7rem, 2.8vw, 0.85rem);
-    }
-  }
-
-  /* ============================================================
-     REDUCED MOTION
-     ============================================================ */
-  @media (prefers-reduced-motion: reduce) {
-    .hero .nav-button__dot  { animation: none; }
-    .hero .nav-button__fill { transition: none; }
-    .hero__cta-arrow        { transition: none; }
   }
 </style>

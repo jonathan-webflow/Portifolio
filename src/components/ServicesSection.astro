@@ -1,9 +1,9 @@
 ---
 /**
- * ServicesSection.astro — Lista de serviços com cursor follower GSAP
+ * ServicesSection.astro — Our Process com cursor follower GSAP
  *
  * Comportamento:
- *   • 5 linhas de serviços em grid 2-col (número+heading | descrição)
+ *   • 4 linhas de processo em grid 2-col (número+heading | descrição)
  *   • Hover: texto do item fica em --color-text, outros dimam (CSS :has)
  *   • Background fullbleed com blur aparece por item
  *   • Cursor follower (fixed, portrait 1/1.25, border-radius: 0.75em)
@@ -21,33 +21,27 @@ interface Service {
 const services: Service[] = [
   {
     number: '(01)',
-    heading: 'Webflow+Dev',
-    body: 'Pixel-perfect Webflow builds with clean CMS structure and advanced interactions — from design handoff to deployment.',
-    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ContactImage1.webp',
+    heading: 'Discover+Define',
+    body: 'Before any pixel gets placed, the brief gets understood. Brand, audience, goals, constraints — everything that makes the difference between a site that looks good and one that actually works.',
+    image: '/process/01.png',
   },
   {
     number: '(02)',
-    heading: 'Motion+Design',
-    body: 'High-end animations, kinetic typography and smooth transitions that bring static layouts to life.',
-    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ProjectDesign.webp',
+    heading: 'Design+Direct',
+    body: 'Visual decisions made with intent. Layout, type, motion, hierarchy — each choice earns its place. The result is a direction that feels inevitable, not accidental.',
+    image: '/process/02.png',
   },
   {
     number: '(03)',
-    heading: 'Shopify+Partner',
-    body: 'Custom Shopify storefronts built for performance and conversion — themes, sections and integrations tailored to your brand.',
-    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ContactImage3.webp',
+    heading: 'Build+Ship',
+    body: 'Clean implementation, pixel-perfect execution, and the kind of attention to detail that only shows when you get it right. Webflow, Next.js, Astro or Shopify — the right tool for the right project, built fast, built to last.',
+    image: '/process/03.png',
   },
   {
     number: '(04)',
-    heading: 'Creative+Direction',
-    body: 'From concept to execution — visual identity, art direction and strategic design for brands that want to be impossible to forget.',
-    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ProjectImage.webp',
-  },
-  {
-    number: '(05)',
-    heading: 'Custom+Code',
-    body: 'Bespoke components, WebGL experiments and tailor-made solutions that push the medium beyond templates.',
-    image: 'https://byqsupply-components.netlify.app/humanmachine/images/ProjectDesign2.webp',
+    heading: 'Iterate+Grow',
+    body: 'Launch is not the finish line. What happens after shipping — insights, refinements, interactions sharpened — is where good work becomes great work.',
+    image: '/process/04.png',
   },
 ];
 ---
@@ -70,7 +64,7 @@ const services: Service[] = [
 
     <!-- Label -->
     <div class="services__label-wrap" data-services-label>
-      <p class="services__label">[ What We Do ]</p>
+      <p class="services__label">[ Our Process ]</p>
     </div>
 
     <!-- Lista -->
@@ -88,7 +82,7 @@ const services: Service[] = [
             <!-- Esquerda: número + heading -->
             <div class="services__item-left">
               <span class="services__number">{s.number}</span>
-              <h3 class="services__heading">{s.heading}</h3>
+              <h3 class="services__heading" set:html={s.heading.replace('+', '<span class="services__heading-sep">+</span>')}></h3>
             </div>
 
             <!-- Direita: descrição -->
@@ -250,6 +244,11 @@ const services: Service[] = [
     letter-spacing: -0.04em;
     text-transform: uppercase;
     margin: 0;
+  }
+
+  .services__heading-sep {
+    color: var(--color-text-muted);
+    font-weight: 300;
   }
 
   /* Direita: descrição — alinhada à borda direita do grid */

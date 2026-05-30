@@ -14,7 +14,7 @@
  *   7. .bottom fica fora do .container — aparece abaixo do pin zone
  *
  * Integração com o Design System:
- *   • --font-display (Archivo Narrow) para os títulos — 10vw fluido
+ *   • --font-display (Archivo Narrow) para os títulos — rem (fluid root)
  *   • --font-primary + monospace stack para infos
  *   • Cores e espaçamento via Custom Properties
  *   • GSAP + ScrollTrigger via window (carregados em Layout.astro)
@@ -167,15 +167,14 @@ const { entries = [
     text-transform: uppercase;
     /* SEM overflow: hidden — letras deslocadas precisam ser visíveis */
     /* SEM padding interno que afete o cálculo de dist             */
-    padding-top: 1vw;
+    padding-top: 0.9rem;
   }
 
   /* --- Título (.title) --- */
   .history-section__title {
     font-family: var(--font-display);
     font-weight: 500;
-    /* 10vw como no original, com clamp para extremos */
-    font-size: clamp(3rem, 10vw, 13rem);
+    font-size: 9rem;
     line-height: 1;
     letter-spacing: -0.03em;
     color: var(--color-text);
@@ -210,7 +209,7 @@ const { entries = [
 
   .history-section__infos {
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+    font-size: 0.81rem;
     line-height: 1.5;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -235,20 +234,20 @@ const { entries = [
 
   /* Parágrafo de descrição — text-indent editorial como no original */
   .history-section__description {
-    width: clamp(240px, 28vw, 520px);
+    width: 25.2rem;
     font-family: var(--font-primary);
-    font-size: clamp(1rem, 1.6vw, 1.65rem);
+    font-size: 1.44rem;
     line-height: 1;
     letter-spacing: -0.03em;
     color: var(--color-text);
-    text-indent: clamp(2rem, 6vw, 6rem);
+    text-indent: 5.4rem;
     flex-shrink: 0;
   }
 
   .history-section__image {
     box-sizing: border-box;
     flex-shrink: 0;
-    width: clamp(200px, 28vw, 520px);
+    width: 25.2rem;
     height: auto;
     max-width: none;
     aspect-ratio: 16 / 10;
@@ -263,7 +262,7 @@ const { entries = [
     }
 
     .history-section__title {
-      font-size: clamp(2.5rem, 10.3vw, 6rem);
+      font-size: 2.5rem;
     }
 
     .history-section__bottom {

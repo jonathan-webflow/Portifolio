@@ -189,7 +189,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           const smoother = ScrollSmoother.create({
             wrapper: '#smooth-wrapper',
             content: '#smooth-content',
-            smooth: 1.2,            // segundos de "catch-up" do scroll
+            smooth: 1.5,            // segundos de "catch-up" do scroll
             effects: true,          // habilita data-speed e data-lag nos filhos
             normalizeScroll: true,  // fix mobile bounce / iOS address bar
             smoothTouch: 0.1,       // suaviza levemente em touch (mais responsivo)

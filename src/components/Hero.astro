@@ -436,7 +436,7 @@ const medias = Object.keys(heroMediaMods)
     background: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-primary);
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 1.3;
   }
 
@@ -472,15 +472,15 @@ const medias = Object.keys(heroMediaMods)
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     align-items: center;
-    gap: 2vw;
+    gap: 1.8rem;
     width: 100%;
-    padding: 16px var(--container-padding);
+    padding: 1rem var(--container-padding);
     z-index: 10;
   }
 
   .hero .nav-container__menu {
     display: flex;
-    gap: clamp(2px, 0.4vw, 8px);
+    gap: 0.36rem;
     justify-self: start;
     align-items: center;
   }
@@ -498,7 +498,7 @@ const medias = Object.keys(heroMediaMods)
   .nav-brand__line {
     display: block;
     font-family: var(--font-display);
-    font-size: clamp(0.85rem, 1.1vw, 1.2rem);
+    font-size: 0.99rem;
     font-weight: 400;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -550,7 +550,7 @@ const medias = Object.keys(heroMediaMods)
     align-items: center;
     justify-content: center;
     gap: 0.5em;
-    padding: 8px 12px;
+    padding: 0.5rem 0.75rem;
     border: 0;
     background: transparent;
     color: var(--color-text);
@@ -573,7 +573,7 @@ const medias = Object.keys(heroMediaMods)
     display: inline-flex;
     align-items: center;
     overflow: hidden;
-    padding: 2px 3px;
+    padding: 0.125rem 0.1875rem;
     z-index: 2;
     line-height: 1;
   }
@@ -583,8 +583,8 @@ const medias = Object.keys(heroMediaMods)
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 12px;
-    height: 12px;
+    width: 0.75rem;
+    height: 0.75rem;
     z-index: 2;
     line-height: 1;
   }
@@ -617,8 +617,8 @@ const medias = Object.keys(heroMediaMods)
   .hero .nav-button--toggle { cursor: default; }
 
   .hero .nav-button__dot {
-    width: 8px;
-    height: 8px;
+    width: 0.5rem;
+    height: 0.5rem;
     border-radius: 50%;
     background: var(--color-accent, #ff0000);
     box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
@@ -663,16 +663,17 @@ const medias = Object.keys(heroMediaMods)
     text-align: left;
   }
 
-  /* Linha 2: ROCHA™ — alinhada à direita */
+  /* Linha 2: DEVELOPER™ — alinhada à direita */
   .hero__name-line--2 {
     display: flex;
     align-items: flex-start;
     justify-content: flex-end;
+    padding-right: var(--container-padding);
   }
 
   .hero__name-text {
     font-family: var(--font-display);
-    font-size: clamp(16vw, 22vw, 26vw);
+    font-size: 19.8rem;
     font-weight: 400;
     line-height: 0.87;
     letter-spacing: -0.04em;
@@ -685,13 +686,13 @@ const medias = Object.keys(heroMediaMods)
 
   /* Developer — mais longo que Rocha, font menor para caber */
   .hero__name-text--2 {
-    font-size: clamp(9vw, 12vw, 13vw);
+    font-size: 10.8rem;
     white-space: nowrap;
   }
 
   .hero__tm {
     font-family: var(--font-display);
-    font-size: clamp(1.25rem, 2vw, 2.75rem);
+    font-size: 1.8rem;
     font-weight: 400;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -708,13 +709,13 @@ const medias = Object.keys(heroMediaMods)
     position: absolute;
     left: var(--container-padding);
     bottom: clamp(5.5rem, 21vh, 13rem);
-    max-width: clamp(220px, 28vw, 440px);
+    max-width: 25.2rem;
     z-index: 6;
   }
 
   .hero__description {
     font-family: var(--font-primary);
-    font-size: clamp(0.95rem, 1.5vw, 1.65rem);
+    font-size: 1.35rem;
     font-weight: 400;
     line-height: 1.4;
     letter-spacing: -0.02em;
@@ -814,8 +815,8 @@ const medias = Object.keys(heroMediaMods)
      MOUSE TRAIL — idêntico ao v1
      ============================================================ */
   :global(.hero > img.trail-img) {
-    width: 15vw;
-    height: 15vw;
+    width: 13.5rem;
+    height: 13.5rem;
     position: absolute;
     object-fit: cover;
     border-radius: 4%;
@@ -838,7 +839,7 @@ const medias = Object.keys(heroMediaMods)
      ============================================================ */
   @media (max-width: 768px) {
     .hero .nav-container {
-      padding: 14px 18px;
+      padding: 0.875rem 1.125rem;
       grid-template-columns: 1fr;
       gap: 0;
     }
@@ -855,25 +856,25 @@ const medias = Object.keys(heroMediaMods)
     }
 
     .hero .nav-button {
-      font-size: 11px;
-      padding: 6px 8px;
+      font-size: 0.6875rem;
+      padding: 0.375rem 0.5rem;
     }
 
     .hero__name {
-      left: clamp(12px, 4vw, 24px);
-      right: clamp(12px, 4vw, 24px);
+      left: 0.96rem;
+      right: 0.96rem;
     }
 
     .hero__name-text {
-      font-size: clamp(14vw, 18vw, 22vw);
+      font-size: 4.32rem;
     }
 
     .hero__name-text--2 {
-      font-size: clamp(11vw, 14vw, 18vw);
+      font-size: 3.36rem;
     }
 
     .hero__tm {
-      font-size: clamp(1rem, 1.5vw, 1.5rem);
+      font-size: 1rem;
     }
 
     .hero__description-wrap {
@@ -882,20 +883,20 @@ const medias = Object.keys(heroMediaMods)
     }
 
     .hero__description {
-      font-size: clamp(0.8rem, 3vw, 1rem);
+      font-size: 0.8rem;
     }
 
     .hero__footer {
       flex-direction: column;
       align-items: flex-start;
       gap: var(--space-sm);
-      bottom: clamp(16px, 4vw, 32px);
-      left: clamp(12px, 4vw, 24px);
-      right: clamp(12px, 4vw, 24px);
+      bottom: 1rem;
+      left: 0.96rem;
+      right: 0.96rem;
     }
 
     .hero__tagline {
-      font-size: clamp(0.7rem, 2.8vw, 0.85rem);
+      font-size: 0.7rem;
     }
   }
 

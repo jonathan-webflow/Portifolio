@@ -16,17 +16,17 @@
      — sem media-queries tipográficas, exceto o override ultrawide.
 
      Display & Headings */
-  --display:       clamp(1.8rem, .36rem + 7.2vw, 9rem);
-  --h1:            clamp(1.35rem, .56rem + 3.95vw, 5.3rem);
-  --h2:            clamp(1.5rem, 4vw, 4rem);
-  --case-heading:  clamp(1.8rem, .96rem + 4.2vw, 6rem);
+  --display:       6.84rem;
+  --h1:            4.11rem;
+  --h2:            3.6rem;
+  --case-heading:  4.74rem;
   --label-heading: 1.625rem;
 
   /* Paragraphs & UI */
-  --paragraph-l:  clamp(.9375rem, .5rem + 1.05vw, 2.5rem);
-  --paragraph-m:  clamp(.9375rem, .5rem + .85vw, 2rem);
-  --paragraph-s:  clamp(.875rem, .85rem + .125vw, 1rem);
-  --paragraph-xs: clamp(.75rem, .725rem + .125vw, .875rem);
+  --paragraph-l:  1.445rem;
+  --paragraph-m:  1.265rem;
+  --paragraph-s:  .9625rem;
+  --paragraph-xs: .8375rem;
   --caps:         .8rem;
 
   /* Cores */
@@ -46,9 +46,9 @@
   --space-xl: 8rem;
 
   /* Ritmo vertical entre seções */
-  --section-space-y: clamp(2rem, 5vw, 4.5rem);
-  --section-space-y-tight: clamp(1.25rem, 3vw, 2.75rem);
-  --section-space-y-loose: clamp(2.75rem, 7vw, 6rem);
+  --section-space-y: 4.5rem;
+  --section-space-y-tight: 2.7rem;
+  --section-space-y-loose: 6rem;
 
   /* Layout */
   --container-max: 1440px;
@@ -85,6 +85,20 @@ html {
   scroll-behavior: auto !important;
   -webkit-text-size-adjust: 100%;
   hanging-punctuation: first last;
+
+  /* ── Fluid root font-size ──────────────────────────────────
+     1rem escala linearmente com a largura da viewport.
+     Referência desktop: 1440px = 16px (1.1111vw). Piso de 13px
+     mantém legibilidade em laptops pequenos; sem teto → preenche
+     telas ultrawide proporcionalmente (todo o layout escala junto). */
+  font-size: max(13px, min(1.1111vw, calc(0.8vw + 5.97px)));
+}
+
+/* Mobile: referência ~390px, com teto para não explodir em phablets */
+@media (max-width: 767px) {
+  html {
+    font-size: clamp(14px, 4.1vw, 17px);
+  }
 }
 
 body {
@@ -175,8 +189,6 @@ ol {
 /* --- Container Utilitário --------------------------------- */
 .container {
   width: 100%;
-  max-width: var(--container-max);
-  margin-inline: auto;
   padding-inline: var(--container-padding);
 }
 
@@ -210,13 +222,3 @@ ol {
   color: var(--color-bg);
 }
 
-/* --- Ultrawide override (≥ 1920px) ----------------------- */
-/* clamp() resolve a escala automaticamente, mas displays muito largos
-   precisam de um teto maior para evitar que o tipo pare de crescer
-   antes de preencher a composição. */
-@media (min-width: 1920px) {
-  :root {
-    --display: clamp(9rem, 6vw, 12rem);
-    --h1:      clamp(5.25rem, 4.5vw, 7rem);
-  }
-}

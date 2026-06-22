@@ -261,7 +261,7 @@ const services: Service[] = [
   }
 
   /* --- Responsivo --- */
-  @media (max-width: 991px) {
+  @media (max-width: 1024px) {
     .services__item-inner {
       grid-template-columns: 1fr;
     }
@@ -334,9 +334,16 @@ const services: Service[] = [
     will-change: transform;
   }
 
-  @media (max-width: 991px) {
+  @media (max-width: 1024px) {
     .services__follower {
       display: none;
+    }
+  }
+
+  /* Reduced motion: o follower segue o cursor continuamente — desliga */
+  @media (prefers-reduced-motion: reduce) {
+    .services__follower {
+      display: none !important;
     }
   }
 </style>

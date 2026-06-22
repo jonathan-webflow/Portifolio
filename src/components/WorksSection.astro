@@ -95,8 +95,15 @@ const displayYear = works[0]?.year ?? "2025";
                       target="_blank"
                       class="works-button"
                     >
-                      <div class="works-p works-p--white">Explore the website</div>
-                      <div class="works-button__line"></div>
+                      <div class="works-button__label">
+                        <span class="works-p works-p--white">Explore the website</span>
+                        <svg class="works-button__arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M7 17L17 7M8 7h9v9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </div>
+                      <div class="works-button__line">
+                        <span class="works-button__line-fill"></span>
+                      </div>
                     </a>
                   </div>
                 </div>
@@ -395,7 +402,7 @@ const displayYear = works[0]?.year ?? "2025";
   }
 
   /* Desktop: first title centered at 50vh when section enters viewport */
-  @media (min-width: 992px) {
+  @media (min-width: 1025px) {
     .works-titles {
       padding-top: 50vh;
       padding-bottom: 50vh;
@@ -419,18 +426,59 @@ const displayYear = works[0]?.year ?? "2025";
   /* ── Button ── */
   .works-button {
     gap: 0.5rem;
-    border-bottom: 1px solid var(--color-accent-contrast);
     flex-flow: column;
     text-decoration: none;
     display: inline-flex;
     position: relative;
-    overflow: hidden;
+    cursor: pointer;
   }
 
+  .works-button__label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  /* Seta diagonal — escondida, surge no hover */
+  .works-button__arrow {
+    width: 0.9rem;
+    height: 0.9rem;
+    flex-shrink: 0;
+    color: var(--color-accent);
+    opacity: 0;
+    transform: translate(-0.25rem, 0.25rem);
+    transition: opacity 0.4s var(--ease-out-expo),
+                transform 0.4s var(--ease-out-expo);
+  }
+
+  /* Linha base branca */
   .works-button__line {
+    position: relative;
     background-color: var(--color-accent-contrast);
     height: 1px;
     width: 100%;
+  }
+
+  /* Linha vermelha que cresce por cima da branca */
+  .works-button__line-fill {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.45s var(--ease-out-expo);
+  }
+
+  /* ── Hover (apenas dispositivos com mouse) ── */
+  @media (hover: hover) and (pointer: fine) {
+    .works-button:hover .works-button__line-fill {
+      transform: scaleX(1);
+    }
+    .works-button:hover .works-button__arrow {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
   }
 
   /* ── Text helpers ── */
@@ -446,8 +494,8 @@ const displayYear = works[0]?.year ?? "2025";
   /* ── Mobile: hide accordion by default ── */
   .work_h2-case-wrapper.mobile { display: none; }
 
-  /* ── Mobile breakpoint ── */
-  @media (max-width: 991px) {
+  /* ── Tablet + phone breakpoint ── */
+  @media (max-width: 1024px) {
     .works_main-wrapper { display: flex; flex-direction: column; }
     .works-left { display: none; }
     .works-center { display: none; }
@@ -469,6 +517,34 @@ const displayYear = works[0]?.year ?? "2025";
     }
     .work_h2-wrapper.is-open .h2_works { color: #fff; }
     .works-right_overlay-wrapper { display: none; }
+  }
+
+  /* ── Reduced motion: força o layout acordeão (estático, sem pin/scroll-jack) ── */
+  @media (prefers-reduced-motion: reduce) {
+    .works_main-wrapper { display: flex; flex-direction: column; }
+    .works-left { display: none; }
+    .works-center { display: none; }
+    .works-right { width: 100%; }
+    .h2_works { font-size: 2.5rem; cursor: pointer; }
+    .work_h2-case-wrapper.mobile {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition: none;
+    }
+    .work_h2-case-wrapper.mobile > .work-detail {
+      overflow: hidden;
+      min-height: 0;
+    }
+    .work_h2-wrapper.is-open .work_h2-case-wrapper.mobile {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    .work_h2-wrapper.is-open .h2_works { color: #fff; }
+    .works-right_overlay-wrapper { display: none; }
+
+    .works-button__line-fill,
+    .works-button__arrow { transition: none; }
   }
 </style>
 

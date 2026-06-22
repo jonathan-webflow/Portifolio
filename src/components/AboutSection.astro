@@ -193,9 +193,10 @@ const {
   }
 
   /* --- Responsivo ---------------------------------------------- */
-  @media (max-width: 900px) {
+  @media (max-width: 767px) {
     .about-section__header {
       display: block;
+      top: var(--space-xs);
     }
     .about-section__meta {
       justify-content: flex-start;
@@ -210,12 +211,6 @@ const {
       order: 1;
       width: 3.625rem;
       height: 3.625rem;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .about-section__header {
-      top: var(--space-xs);
     }
   }
 

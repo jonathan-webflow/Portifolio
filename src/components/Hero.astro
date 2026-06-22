@@ -835,9 +835,33 @@ const medias = Object.keys(heroMediaMods)
   }
 
   /* ============================================================
-     MOBILE
+     TABLET — 768–1024 (faixa dedicada: evita herdar o display
+     gigante do desktop, que clipa em larguras estreitas)
      ============================================================ */
-  @media (max-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .hero__name {
+      display: flex;
+      flex-direction: column;
+      gap: 0.04em;
+    }
+
+    .hero__name-text {
+      font-size: 9rem;
+    }
+
+    .hero__name-text--2 {
+      font-size: 7rem;
+    }
+
+    .hero__description-wrap {
+      max-width: 32rem;
+    }
+  }
+
+  /* ============================================================
+     MOBILE — ≤767 (phone)
+     ============================================================ */
+  @media (max-width: 767px) {
     .hero .nav-container {
       padding: 0.875rem 1.125rem;
       grid-template-columns: 1fr;
@@ -863,14 +887,17 @@ const medias = Object.keys(heroMediaMods)
     .hero__name {
       left: 0.96rem;
       right: 0.96rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.08em;
     }
 
     .hero__name-text {
-      font-size: 4.32rem;
+      font-size: 3.9rem;
     }
 
     .hero__name-text--2 {
-      font-size: 3.36rem;
+      font-size: 3rem;
     }
 
     .hero__tm {

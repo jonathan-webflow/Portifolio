@@ -500,14 +500,22 @@ const displayYear = works[0]?.year ?? "2025";
     .works-left { display: none; }
     .works-center { display: none; }
     .works-right { width: 100%; }
-    .h2_works { font-size: 2.5rem; cursor: pointer; }
+    .works-titles { gap: 1.25rem; }
+    .h2_works { font-size: clamp(2.25rem, 11vw, 4.5rem); cursor: pointer; }
     .work_h2-case-wrapper.mobile {
       display: grid;
       grid-template-rows: 0fr;
       opacity: 0;
       transition: grid-template-rows 0.45s ease, opacity 0.3s ease;
     }
+    /* Anula o estilo desktop de .work-detail (absolute/hidden/cross-fade) —
+       no acordeão o item precisa fluir no grid colapsável */
     .work_h2-case-wrapper.mobile > .work-detail {
+      position: static;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      height: auto;
       overflow: hidden;
       min-height: 0;
     }
@@ -525,7 +533,7 @@ const displayYear = works[0]?.year ?? "2025";
     .works-left { display: none; }
     .works-center { display: none; }
     .works-right { width: 100%; }
-    .h2_works { font-size: 2.5rem; cursor: pointer; }
+    .h2_works { font-size: clamp(2.25rem, 11vw, 4.5rem); cursor: pointer; }
     .work_h2-case-wrapper.mobile {
       display: grid;
       grid-template-rows: 0fr;
@@ -533,6 +541,11 @@ const displayYear = works[0]?.year ?? "2025";
       transition: none;
     }
     .work_h2-case-wrapper.mobile > .work-detail {
+      position: static;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      height: auto;
       overflow: hidden;
       min-height: 0;
     }
@@ -564,88 +577,71 @@ const displayYear = works[0]?.year ?? "2025";
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const worksLeft   = section.querySelector<HTMLElement>('.works-left');
-    const worksCenter = section.querySelector<HTMLElement>('.works-center');
+    // ── Desktop (≥1025px): pins + ativação por scroll + scramble do ano ──
+    // gsap.matchMedia limpa os ScrollTriggers automaticamente ao sair do range,
+    // evitando pins órfãos no mobile / ao redimensionar.
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 1025px)', () => {
+      const worksLeft    = section.querySelector<HTMLElement>('.works-left');
+      const worksCenter  = section.querySelector<HTMLElement>('.works-center');
+      const worksOverlay = section.querySelector<HTMLElement>('.works-right_overlay-wrapper');
 
-    // Pin left and center panels using GSAP (required with ScrollSmoother — CSS sticky
-    // doesn't work because ScrollSmoother translates #smooth-content via transform)
-    if (worksLeft) {
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top top',
-        end: 'bottom bottom',
-        pin: worksLeft,
-        pinSpacing: false,
-        anticipatePin: 1,
-      });
-    }
-
-    if (worksCenter) {
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top top',
-        end: 'bottom bottom',
-        pin: worksCenter,
-        pinSpacing: false,
-        anticipatePin: 1,
-      });
-    }
-
-    const worksOverlay = section.querySelector<HTMLElement>('.works-right_overlay-wrapper');
-    if (worksOverlay) {
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top top',
-        end: 'bottom bottom',
-        pin: worksOverlay,
-        pinSpacing: false,
-        anticipatePin: 1,
-      });
-    }
-
-    const workDetails = gsap.utils.toArray<HTMLElement>('.works-left .work-detail');
-    const workTitles = gsap.utils.toArray<HTMLElement>('.works-right .work_h2-wrapper h2');
-    const yearEl = section.querySelector('.works-year');
-
-    function activateWork(index: number): void {
-      workDetails.forEach((detail: HTMLElement, i: number) => {
-        detail.classList.toggle('is-active', i === index);
-      });
-
-      workTitles.forEach((title: HTMLElement, i: number) => {
-        title.classList.toggle('is-active', i === index);
-        title.setAttribute('aria-expanded', i === index ? 'true' : 'false');
-      });
-
-      const activeYear = workTitles[index]?.getAttribute('data-year');
-      if (yearEl && activeYear) {
-        const digits = yearEl.querySelectorAll('.works-year__digit');
-        digits.forEach((digit: Element, i: number) => {
-          gsap.to(digit, {
-            duration: 0.5,
-            scrambleText: {
-              text: activeYear[i] ?? '',
-              chars: '0123456789',
-              speed: 0.6,
-              revealDelay: 0,
-            },
-            ease: 'none',
-          });
+      [worksLeft, worksCenter, worksOverlay].forEach((el) => {
+        if (!el) return;
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top top',
+          end: 'bottom bottom',
+          pin: el,
+          pinSpacing: false,
+          anticipatePin: 1,
         });
-      }
-    }
+      });
 
-    workTitles.forEach((title: HTMLElement, index: number) => {
-      ScrollTrigger.create({
-        trigger: title,
-        start: 'top center',
-        end: 'bottom center',
-        onEnter: () => activateWork(index),
-        onEnterBack: () => activateWork(index),
+      const workDetails = gsap.utils.toArray('.works-left .work-detail') as HTMLElement[];
+      const workTitles = gsap.utils.toArray('.works-right .work_h2-wrapper h2') as HTMLElement[];
+      const yearEl = section.querySelector('.works-year');
+
+      function activateWork(index: number): void {
+        workDetails.forEach((detail: HTMLElement, i: number) => {
+          detail.classList.toggle('is-active', i === index);
+        });
+
+        workTitles.forEach((title: HTMLElement, i: number) => {
+          title.classList.toggle('is-active', i === index);
+          title.setAttribute('aria-expanded', i === index ? 'true' : 'false');
+        });
+
+        const activeYear = workTitles[index]?.getAttribute('data-year');
+        if (yearEl && activeYear) {
+          const digits = yearEl.querySelectorAll('.works-year__digit');
+          digits.forEach((digit: Element, i: number) => {
+            gsap.to(digit, {
+              duration: 0.5,
+              scrambleText: {
+                text: activeYear[i] ?? '',
+                chars: '0123456789',
+                speed: 0.6,
+                revealDelay: 0,
+              },
+              ease: 'none',
+            });
+          });
+        }
+      }
+
+      workTitles.forEach((title: HTMLElement, index: number) => {
+        ScrollTrigger.create({
+          trigger: title,
+          start: 'top center',
+          end: 'bottom center',
+          onEnter: () => activateWork(index),
+          onEnterBack: () => activateWork(index),
+        });
       });
     });
 
-    // Mobile accordion
+    // ── Acordeão mobile — sempre ativo (independente do matchMedia) ──
     const mobileWrappers = section.querySelectorAll<HTMLElement>('.work_h2-wrapper');
     mobileWrappers.forEach((wrapper) => {
       const btn = wrapper.querySelector('h2');

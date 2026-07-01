@@ -266,6 +266,21 @@ const socials = [
       isMouseIn = false; mouseX = -9999; mouseY = -9999;
     }, { passive: true });
 
+    const setTouch = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      const r = inner.getBoundingClientRect();
+      mouseX = t.clientX - r.left;
+      mouseY = t.clientY - r.top;
+      isMouseIn = true;
+    };
+    inner.addEventListener('touchstart', setTouch, { passive: true });
+    inner.addEventListener('touchmove', setTouch, { passive: true });
+
+    const endTouch = () => { isMouseIn = false; mouseX = -9999; mouseY = -9999; };
+    inner.addEventListener('touchend', endTouch, { passive: true });
+    inner.addEventListener('touchcancel', endTouch, { passive: true });
+
     function resolveCollisions(): void {
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
@@ -547,6 +562,18 @@ const socials = [
 
   .contact-section__canvas--base  { z-index: 0; }
   .contact-section__canvas--bloom { z-index: 1; mix-blend-mode: screen; opacity: 0.7; }
+
+  /* ── Mobile ────────────────────────────────────────── */
+  @media (max-width: 767px) {
+    .contact-section {
+      --letter-display: 7rem;
+    }
+    .contact-section__copyright {
+      right: calc(var(--letter-display) + var(--container-padding) + var(--space-sm));
+      line-height: 1.4;
+      font-size: 0.75rem;
+    }
+  }
 
   /* ── Accessibility ──────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {

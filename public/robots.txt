@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://portfolio2026.vercel.app/sitemap-index.xml
+Sitemap: https://jonathanrocha.work/sitemap-index.xml

@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  site: 'https://portfolio2026.vercel.app', // Atualizar com URL real da Vercel
+  site: 'https://jonathanrocha.work',
   integrations: [sitemap()],
   compressHTML: true,
   build: {

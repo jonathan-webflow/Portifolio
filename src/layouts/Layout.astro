@@ -27,15 +27,18 @@ interface Props {
 
 const {
   title,
-  description = 'Portfolio — Creative Developer & Designer',
+  description = 'Creative developer passionate about animations and advanced AI systems. Portfolio of Jonathan Rocha — building standout digital experiences from Rio de Janeiro.',
   ogImage = '/og-default.jpg',
 } = Astro.props;
 
+const siteName = 'Jonathan Rocha';
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const absoluteOgImage = new URL(ogImage, Astro.site).href;
+const ogImageAlt = 'Jrocha — Creative developer with a passion for animations and advanced AI systems';
 ---
 
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -51,19 +54,27 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:image" content={absoluteOgImage} />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="537" />
+    <meta property="og:image:alt" content={ogImageAlt} />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image" content={absoluteOgImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -73,9 +84,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           "@type": "Person",
           "@id": `${Astro.site}#person`,
           "name": "Jonathan Rocha",
+          "alternateName": "Jrocha",
           "jobTitle": "Creative Developer",
           "description": description,
           "url": Astro.site,
+          "image": absoluteOgImage,
           "sameAs": [
             "https://github.com/jonathan-webflow",
           ],
@@ -85,9 +98,20 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           "@type": "WebSite",
           "@id": `${Astro.site}#website`,
           "url": Astro.site,
-          "name": "Jonathan Rocha — Creative Developer",
+          "name": `${siteName} — Creative Developer`,
           "description": description,
+          "inLanguage": "en-US",
           "author": { "@id": `${Astro.site}#person` }
+        },
+        {
+          "@type": "WebPage",
+          "@id": `${canonicalURL}#webpage`,
+          "url": canonicalURL.href,
+          "name": title,
+          "description": description,
+          "isPartOf": { "@id": `${Astro.site}#website` },
+          "about": { "@id": `${Astro.site}#person` },
+          "inLanguage": "en-US"
         }
       ]
     })} />

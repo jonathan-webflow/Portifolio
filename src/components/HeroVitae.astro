@@ -1,0 +1,642 @@
+---
+/**
+ * HeroVitae.astro — Hero editorial CV—'26
+ *
+ * Baseado no design Figma node 993:4901 (Maeda CV—'26).
+ * Layout: heading gigante canto superior-esquerdo + subtítulo misto
+ * (sans + serif-italic) no quadrante inferior-direito + barra com
+ * relógio ao vivo, barcode CSS e coordenadas geográficas.
+ *
+ * Fontes: Satoshi (heading/wordmark) · Switzer (subtitle sans) ·
+ *         Cormorant Light Italic (subtitle italic) · DM Mono (labels)
+ * Carregadas em Layout.astro via Fontshare + Google Fonts.
+ *
+ * Scroll overlap com AboutSection: mesma mecânica de pin do HeroV3
+ * — 200svh runway + ScrollTrigger pin + overlay scrub.
+ */
+
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  heading?: string;
+  wordmark?: string;
+  locationTimezone?: string;
+  coords?: string;
+  location?: string;
+}
+
+const {
+  heading = 'Jrocha®',
+  wordmark = "CV—'26",
+  locationTimezone = 'America/Sao_Paulo',
+  coords = '-22.9068° S, 43.1729° W',
+  location = 'RIO DE JANEIRO, BR',
+} = Astro.props;
+
+// Imagens do mouse trail (pré-carregadas, ocultas)
+const heroMediaMods = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/images/hero-medias/*.png',
+  { eager: true }
+);
+const medias = Object.keys(heroMediaMods)
+  .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+  .map((p) => heroMediaMods[p]!.default);
+---
+
+<!--
+  Overlap Hero→About: hero pinado via ScrollTrigger durante 200svh.
+  position:sticky descartado — o transform do ScrollSmoother quebra sticky.
+-->
+<div class="vitae-scroll" data-hero-scroll>
+<section id="hero" class="vitae" data-timezone={locationTimezone}>
+
+  <h1 class="vitae__sr">Jonathan Rocha — Creative Developer</h1>
+
+  <nav class="vitae__nav" aria-label="Primary">
+    <a href="/" class="vitae__wordmark" aria-label="Jonathan Rocha — home">
+      <div class="vitae__wordmark-track">
+        <p>{wordmark}</p>
+        <p aria-hidden="true">{wordmark}</p>
+      </div>
+    </a>
+    <div class="vitae__nav-meta" aria-hidden="true">
+      <span>CURRICULUM VITAE</span>
+      <span>OF A CREATIVE DEVELOPER</span>
+    </div>
+  </nav>
+
+  <div class="vitae__body">
+    <p class="vitae__heading" aria-hidden="true">{heading}</p>
+
+    <div class="vitae__subtitle-grid">
+      <div class="vitae__subtitle-gap" aria-hidden="true"></div>
+      <p class="vitae__subtitle">
+        <span class="vitae__s">Jonathan© is a </span><em class="vitae__i">creative developer</em>
+        <span class="vitae__s"> with a passion for digital craft and </span><em class="vitae__i">advanced web</em>
+        <span class="vitae__s"> systems.</span>
+      </p>
+    </div>
+  </div>
+
+  <footer class="vitae__bar">
+    <div class="vitae__bar-left">
+      <time id="vitae-clock" class="vitae__label"></time>
+      <span class="vitae__label">BRAZIL STANDARD TIME</span>
+    </div>
+    <div class="vitae__bar-center">
+      <!-- Barcode SVG — recriado a partir dos ratios exatos do Figma (node 993:5294) -->
+      <svg class="vitae__barcode" viewBox="0 0 75 30" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0"  y="0" width="1" height="30" fill="white"/>
+        <rect x="4"  y="0" width="3" height="30" fill="white"/>
+        <rect x="8"  y="0" width="1" height="30" fill="white"/>
+        <rect x="10" y="0" width="3" height="30" fill="white"/>
+        <rect x="14" y="0" width="1" height="30" fill="white"/>
+        <rect x="16" y="0" width="5" height="30" fill="white"/>
+        <rect x="24" y="0" width="1" height="30" fill="white"/>
+        <rect x="26" y="0" width="2" height="30" fill="white"/>
+        <rect x="31" y="0" width="4" height="30" fill="white"/>
+        <rect x="36" y="0" width="1" height="30" fill="white"/>
+        <rect x="38" y="0" width="1" height="30" fill="white"/>
+        <rect x="42" y="0" width="3" height="30" fill="white"/>
+        <rect x="46" y="0" width="1" height="30" fill="white"/>
+        <rect x="48" y="0" width="5" height="30" fill="white"/>
+        <rect x="56" y="0" width="1" height="30" fill="white"/>
+        <rect x="58" y="0" width="2" height="30" fill="white"/>
+        <rect x="63" y="0" width="3" height="30" fill="white"/>
+        <rect x="67" y="0" width="1" height="30" fill="white"/>
+        <rect x="69" y="0" width="4" height="30" fill="white"/>
+        <rect x="74" y="0" width="1" height="30" fill="white"/>
+      </svg>
+      <div class="vitae__stamp">
+        <span class="vitae__label">OFFICIAL MARK OF</span>
+        <span class="vitae__label">AUTHENTICITY ©2026</span>
+      </div>
+    </div>
+    <div class="vitae__bar-right">
+      <span class="vitae__label">{coords}</span>
+      <span class="vitae__label">{location}</span>
+    </div>
+  </footer>
+
+  <div class="vitae__overlay" data-hero-overlay aria-hidden="true"></div>
+
+  <!-- Imagens pré-carregadas para o mouse trail (ocultas) -->
+  <div class="vitae__medias" aria-hidden="true">
+    {medias.map((src) => (
+      <Image src={src} alt="" width={src.width} height={src.height} format="webp" loading="lazy" />
+    ))}
+  </div>
+</section>
+</div>
+
+<style>
+  /* ── Runway de scroll (pista para o overlap Hero→About) ── */
+  .vitae-scroll {
+    position: relative;
+    height: 200svh;
+    z-index: var(--z-base);
+  }
+
+  /* ── Section ── */
+  .vitae {
+    position: relative;
+    width: 100vw;
+    height: 100svh;
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: #fff;
+  }
+
+  /* Escurece o hero conforme o About sobe por cima (GSAP scrub) */
+  .vitae__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: #000;
+    opacity: 0;
+    pointer-events: none;
+    z-index: var(--z-above);
+  }
+
+  /* ── Acessibilidade: heading visualmente oculto ── */
+  .vitae__sr {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ── Navbar ── */
+  .vitae__nav {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: var(--z-above);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: var(--space-sm) var(--container-padding);
+  }
+
+  .vitae__wordmark {
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Satoshi', var(--font-primary);
+    font-size: clamp(1rem, 2.1vw, 2rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    display: block;
+    overflow: hidden;
+    height: 1em;
+    flex-shrink: 0;
+  }
+
+  .vitae__wordmark-track {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.5s var(--ease-out-expo);
+  }
+
+  .vitae__wordmark-track p {
+    height: 1em;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .vitae__wordmark:hover .vitae__wordmark-track {
+    transform: translateY(-50%);
+  }
+
+  /* Centralizado na viewport (nav é absoluto e ocupa a largura toda) —
+     independe da largura do wordmark à esquerda */
+  .vitae__nav-meta {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(0.5rem, 0.82vw, 0.82rem);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+    color: #fff;
+  }
+
+  /* ── Corpo ── */
+  .vitae__body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* padding-top limpa a nav absoluta + margem do design */
+    padding: clamp(4rem, 6.2vw, 7rem) var(--container-padding) var(--space-sm);
+  }
+
+  /* Heading gigante — Satoshi Medium, escala proporcional ao frame Figma 2535px */
+  .vitae__heading {
+    font-family: 'Satoshi', var(--font-primary);
+    font-weight: 500;
+    font-size: clamp(4rem, 16.5vw, 22rem);
+    line-height: 0.7;
+    letter-spacing: -0.05em;
+    color: #fff;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  /* Grid 2 colunas: espaço vazio | subtítulo (posiciona à direita) */
+  .vitae__subtitle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+    align-items: end;
+  }
+
+  .vitae__subtitle-gap {
+    /* coluna vazia proposital — mantém o subtítulo no quadrante direito */
+  }
+
+  .vitae__subtitle {
+    margin: 0;
+    color: #fff;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+  }
+
+  /* Texto sans do subtítulo (Switzer) */
+  .vitae__s {
+    font-family: 'Switzer', var(--font-primary);
+    font-weight: 400;
+    font-style: normal;
+    font-size: clamp(1.1rem, 2.75vw, 3.5rem);
+    letter-spacing: -0.04em;
+  }
+
+  /* Texto italic do subtítulo (Cormorant) — 40% maior que o sans */
+  .vitae__i {
+    font-family: 'Cormorant', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(1.5rem, 3.85vw, 4.8rem);
+    letter-spacing: -0.05em;
+  }
+
+  /* ── Barra inferior ── */
+  .vitae__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--container-padding);
+    flex-shrink: 0;
+  }
+
+  .vitae__label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(0.75rem, 0.82vw, 0.82rem);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .vitae__bar-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+  }
+
+  .vitae__bar-center {
+    display: flex;
+    align-items: center;
+    gap: 1.5em;
+  }
+
+  .vitae__barcode {
+    width: clamp(2.5rem, 4vw, 5rem);
+    height: clamp(1.4rem, 2vw, 2.5rem);
+    flex-shrink: 0;
+  }
+
+  .vitae__stamp {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+  }
+
+  .vitae__bar-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15em;
+  }
+
+  /* ── Entrada escalonada (disparada por .is-ready) ── */
+  .vitae__nav,
+  .vitae__heading,
+  .vitae__subtitle,
+  .vitae__bar {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition: opacity 0.9s var(--ease-out-expo), transform 0.9s var(--ease-out-expo);
+  }
+
+  .vitae.is-ready .vitae__nav      { opacity: 1; transform: none; transition-delay: 0.05s; }
+  .vitae.is-ready .vitae__heading  { opacity: 1; transform: none; transition-delay: 0.12s; }
+  .vitae.is-ready .vitae__subtitle { opacity: 1; transform: none; transition-delay: 0.28s; }
+  .vitae.is-ready .vitae__bar      { opacity: 1; transform: none; transition-delay: 0.5s; }
+
+  /* ── Mobile ── */
+  @media (max-width: 767px) {
+    .vitae__nav-meta { display: none; }
+
+    /* Botão de menu volta pro canto direito (nav-meta oculto não empurra mais) */
+    .vitae__nav {
+      justify-content: space-between;
+    }
+
+    /* Corpo: heading no topo, subtítulo centrado no espaço restante */
+    .vitae__body {
+      justify-content: flex-start;
+    }
+
+    /* Heading grande — uma linha, calibrado p/ "Jrocha®" caber de 320px a 767px */
+    .vitae__heading {
+      font-size: clamp(4.5rem, 22vw, 11rem);
+      line-height: 0.72;
+      letter-spacing: -0.05em;
+      white-space: nowrap;
+    }
+
+    /* margin-block:auto centra o subtítulo verticalmente entre heading e barra
+       — respiros simétricos como na referência (~55-60% da viewport) */
+    .vitae__subtitle-grid {
+      grid-template-columns: 1fr;
+      margin-block: auto;
+    }
+
+    .vitae__subtitle-gap { display: none; }
+
+    /* Subtítulo: clamp com vw grande p/ mobile — sans ~48-52px, itálico ~40-48px */
+    .vitae__s {
+      font-size: clamp(2rem, 12vw, 2.5rem);
+    }
+
+    .vitae__i {
+      font-size: clamp(1.75rem, 10.5vw, 3rem);
+    }
+
+    .vitae__bar-center { display: none; }
+
+    .vitae__bar {
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+  }
+
+  /* ── Mouse image trail ── */
+  :global(.vitae > img.trail-img) {
+    width: clamp(8rem, 13.5vw, 13.5rem);
+    aspect-ratio: 1;
+    position: absolute;
+    object-fit: cover;
+    border-radius: 4%;
+    z-index: 1; /* acima do heading/subtítulo, abaixo da nav e do overlay (var(--z-above)) */
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .vitae__medias img {
+    width: 1px;
+    height: 1px;
+    top: 0;
+    left: 0;
+    position: absolute;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* ── Acessibilidade: sem animações de entrada ── */
+  @media (prefers-reduced-motion: reduce) {
+    .vitae__nav,
+    .vitae__heading,
+    .vitae__subtitle,
+    .vitae__bar {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initVitaeHero(): void {
+    const hero = document.querySelector<HTMLElement>('.vitae');
+    if (!hero) return;
+
+    // Relógio ao vivo
+    const clockEl = document.getElementById('vitae-clock') as HTMLTimeElement | null;
+    if (clockEl) {
+      const tz = hero.dataset.timezone ?? 'America/Sao_Paulo';
+      const fmt = new Intl.DateTimeFormat('en-US', {
+        timeZone: tz,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      });
+      const tick = () => {
+        const now = new Date();
+        clockEl.dateTime = now.toISOString();
+        clockEl.textContent = fmt.format(now);
+      };
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    // Entrada após o loader (fallback 4s)
+    const reveal = () => hero.classList.add('is-ready');
+    const loaderEl = document.getElementById('loader');
+    if (!loaderEl || loaderEl.style.display === 'none') {
+      reveal();
+    } else {
+      const safety = setTimeout(reveal, 4000);
+      window.addEventListener('loader:complete', () => {
+        clearTimeout(safety);
+        reveal();
+      }, { once: true });
+    }
+
+    initHeroOverlap();
+    initHeroTrail();
+  }
+
+  // Mouse image trail — imagens do portfólio seguem o cursor (portado do Hero original)
+  function initHeroTrail(): void {
+    // Desativa em touch e reduced-motion
+    if (window.matchMedia('(hover: none), (prefers-reduced-motion: reduce)').matches) return;
+
+    const gsap = (window as any).gsap;
+    if (!gsap) {
+      window.addEventListener('load', initHeroTrail, { once: true });
+      return;
+    }
+
+    const root = document.querySelector<HTMLElement>('.vitae');
+    if (!root || root.dataset.trailInit === 'true') return;
+    root.dataset.trailInit = 'true';
+
+    const navbar = root.querySelector<HTMLElement>('.vitae__nav');
+    const bar = root.querySelector<HTMLElement>('.vitae__bar');
+
+    const images: string[] = [];
+    root.querySelectorAll<HTMLImageElement>('.vitae__medias img').forEach((image) => {
+      const src = image.currentSrc || image.getAttribute('src');
+      if (src) images.push(src);
+    });
+    if (images.length === 0) return;
+
+    let incr = 0;
+    let oldIncr = 0;
+    let firstMove = true;
+    let resetDist = window.innerWidth / 15;
+    let indexImg = 0;
+
+    window.addEventListener('resize', () => {
+      resetDist = window.innerWidth / 15;
+    });
+
+    root.addEventListener('mousemove', (e: MouseEvent) => {
+      const val = e.clientX;
+
+      if (firstMove) {
+        firstMove = false;
+        oldIncr = val;
+        return;
+      }
+
+      incr += Math.abs(val - oldIncr);
+      oldIncr = val;
+
+      // Zona morta superior — abaixo da navbar
+      if (navbar) {
+        const navRect = navbar.getBoundingClientRect();
+        const trailHalfHeight = window.innerWidth * 0.135 * 0.5;
+        if (e.clientY <= navRect.bottom + trailHalfHeight) {
+          incr = 0;
+          return;
+        }
+      }
+
+      // Zona morta inferior — acima da barra do rodapé
+      if (bar) {
+        const barRect = bar.getBoundingClientRect();
+        if (e.clientY >= barRect.top) {
+          incr = 0;
+          return;
+        }
+      }
+
+      if (incr > resetDist) {
+        incr = 0;
+        createMedia(e.clientX, e.clientY - root.getBoundingClientRect().top);
+      }
+    });
+
+    function createMedia(x: number, y: number): void {
+      const image = document.createElement('img');
+      image.setAttribute('src', images[indexImg]);
+      image.classList.add('trail-img');
+      root!.appendChild(image);
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          root!.removeChild(image);
+          tl && tl.kill();
+        },
+      });
+
+      tl.fromTo(
+        image,
+        {
+          x,
+          y,
+          yPercent: -50 + (Math.random() - 0.5) * 10,
+          xPercent: -50 + (Math.random() - 0.5) * 80,
+          rotation: (Math.random() - 0.5) * 20,
+          scaleX: 1.3,
+          scaleY: 1.3,
+        },
+        {
+          scaleX: 1,
+          scaleY: 1,
+          ease: 'elastic.out(2, 0.6)',
+          duration: 0.6,
+        }
+      );
+
+      tl.to(image, {
+        duration: 0.3,
+        scale: 0.5,
+        delay: 0.1,
+        ease: 'back.in(1.5)',
+      });
+
+      indexImg = (indexImg + 1) % images.length;
+    }
+  }
+
+  // Overlap Hero→About: pin do hero + overlay escurecendo no scrub
+  // Mesma lógica do HeroV3 — sticky descartado (transform do ScrollSmoother quebra sticky).
+  function initHeroOverlap(): void {
+    const gsap = (window as any).gsap;
+    const ScrollTrigger = (window as any).ScrollTrigger;
+    if (!gsap || !ScrollTrigger) {
+      window.addEventListener('load', initHeroOverlap, { once: true });
+      return;
+    }
+
+    const wrapper = document.querySelector<HTMLElement>('[data-hero-scroll]');
+    const heroEl = document.querySelector<HTMLElement>('.vitae');
+    const overlay = document.querySelector<HTMLElement>('[data-hero-overlay]');
+    if (!wrapper || !heroEl || !overlay) return;
+
+    if (ScrollTrigger.getById('hero-pin')) return;
+
+    ScrollTrigger.create({
+      id: 'hero-pin',
+      trigger: wrapper,
+      start: 'top top',
+      end: 'bottom bottom',
+      pin: heroEl,
+      pinSpacing: false,
+      anticipatePin: 1,
+    });
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    ScrollTrigger.create({
+      trigger: wrapper,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1.5,
+      onUpdate: (self: { progress: number }) => {
+        gsap.set(overlay, { opacity: self.progress * 0.5 });
+      },
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVitaeHero);
+  } else {
+    initVitaeHero();
+  }
+</script>

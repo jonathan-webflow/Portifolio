@@ -11,18 +11,13 @@
  * Tudo via tokens do design system. Rollback: trocar import no index.astro.
  */
 import HeroBg from '@components/HeroBg.astro';
-
-interface NavItem {
-  label: string;
-  href: string;
-}
+import PrimaryButton from '@components/PrimaryButton.astro';
 
 interface Props {
   heading?: string[];
   subtitle?: string;
   buttonText?: string;
   buttonHref?: string;
-  nav?: NavItem[];
   wordmark?: string;
   ctaText?: string;
   ctaHref?: string;
@@ -37,12 +32,6 @@ const {
   subtitle = "I don't just write code — I craft experiences that convert.",
   buttonText = 'See my work',
   buttonHref = '#projects',
-  nav = [
-    { label: 'Projects', href: '#projects' },
-    { label: 'About', href: '#about' },
-    { label: 'Index', href: '#index' },
-    { label: 'Play', href: '#play' },
-  ],
   wordmark = 'Jonathan Rocha®',
   ctaText = "Let's work together",
   ctaHref = '#contact',
@@ -53,6 +42,13 @@ const {
 } = Astro.props;
 ---
 
+<!--
+  Overlap Hero→About: o hero é fixado via ScrollTrigger pin (pinSpacing:false)
+  durante o runway de 200svh. position:sticky foi descartado — o transform que o
+  ScrollSmoother aplica em #smooth-content quebra sticky (gruda no conteúdo, não
+  na viewport). O pin do GSAP usa pinType:transform sob ScrollSmoother.
+-->
+<div class="hero-scroll" data-hero-scroll>
 <section id="hero" class="hero" data-timezone={locationTimezone}>
   <HeroBg />
 
@@ -61,20 +57,14 @@ const {
 
   <!-- Navbar (verteal-style: links · wordmark · CTA) -->
   <nav class="hero__nav" aria-label="Primary">
-    <ul class="hero__nav-links">
-      {nav.map((item) => (
-        <li><a href={item.href}>{item.label}</a></li>
-      ))}
-    </ul>
     <a href="/" class="hero__wordmark" aria-label="Jonathan Rocha — home">{wordmark}</a>
-    <a href={ctaHref} class="hero__nav-cta">
-      <span>{ctaText}</span>
-      <span class="hero__nav-cta-arrow" aria-hidden="true">
-        <svg viewBox="0 0 13 13" fill="none" aria-hidden="true">
-          <path d="M10.0208 3.41421L1.41421 12.0208L0 10.6066L8.60659 2H1.02082V0H12.0208V11H10.0208V3.41421Z" fill="currentColor"/>
-        </svg>
-      </span>
-    </a>
+    <PrimaryButton
+      variant="secondary"
+      showIcon={false}
+      href={ctaHref}
+      label={ctaText}
+      class="hero__nav-cta-btn"
+    />
   </nav>
 
   <!-- Conteúdo -->
@@ -88,10 +78,7 @@ const {
     <p class="hero__subtitle">{subtitle}</p>
 
     <div class="hero__cta-wrap">
-      <a href={buttonHref} class="hero__pill">
-        {buttonText}
-        <span class="hero__pill-arrow" aria-hidden="true">↗</span>
-      </a>
+      <PrimaryButton href={buttonHref} label={buttonText} />
     </div>
   </div>
 
@@ -114,9 +101,19 @@ const {
       </div>
     </div>
   </div>
+
+  <div class="hero__overlay" data-hero-overlay aria-hidden="true"></div>
 </section>
+</div>
 
 <style>
+  /* ── Runway de scroll (pista para o overlap Hero→About) ── */
+  .hero-scroll {
+    position: relative;
+    height: 200svh;
+    z-index: var(--z-base);
+  }
+
   /* ── Section ── */
   .hero {
     position: relative;
@@ -126,6 +123,16 @@ const {
     background-color: var(--color-bg);
     display: flex;
     flex-direction: column;
+  }
+
+  /* Escurece o hero conforme o About sobe por cima (GSAP scrub) */
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-bg);
+    opacity: 0;
+    pointer-events: none;
+    z-index: var(--z-above);
   }
 
   .hero__sr-title {
@@ -138,41 +145,17 @@ const {
     border: 0;
   }
 
-  /* ── Navbar (3 col: links · wordmark · CTA) ── */
+  /* ── Navbar (wordmark esquerda · CTA direita) ── */
   .hero__nav {
     position: relative;
     z-index: var(--z-above);
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
+    justify-content: space-between;
     align-items: start;
     padding: var(--space-sm) var(--container-padding);
   }
 
-  .hero__nav-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    justify-self: start;
-  }
-
-  .hero__nav-links a {
-    color: var(--color-text);
-    text-decoration: none;
-    font-family: var(--font-primary);
-    font-size: var(--paragraph-s);
-    line-height: 1.3;
-    transition: color 0.3s var(--ease-out-expo);
-  }
-
-  .hero__nav-links a:hover {
-    color: var(--color-text-muted);
-  }
-
   .hero__wordmark {
-    justify-self: center;
     color: var(--color-text);
     text-decoration: none;
     font-family: var(--font-primary);
@@ -182,37 +165,10 @@ const {
     line-height: 1;
   }
 
-  .hero__nav-cta {
-    justify-self: end;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--color-text);
-    text-decoration: none;
-    font-family: var(--font-primary);
-    font-size: var(--paragraph-s);
-  }
-
-  .hero__nav-cta-arrow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.6rem;
-    height: 1.6rem;
-    border: 1px solid var(--color-border);
-    color: var(--color-accent);
-    transition: transform 0.3s var(--ease-out-expo);
-  }
-
-  .hero__nav-cta-arrow svg {
-    width: 0.6rem;
-    height: 0.6rem;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .hero__nav-cta:hover .hero__nav-cta-arrow {
-      transform: translate(0.15rem, -0.15rem);
-    }
+  /* :global porque o <a> é renderizado por PrimaryButton (filho) e não recebe
+     o data-attr de escopo do HeroV3 — sem :global a regra não casaria. */
+  .hero__nav :global(.hero__nav-cta-btn) {
+    flex-shrink: 0;
   }
 
   /* ── Conteúdo ── */
@@ -252,40 +208,6 @@ const {
 
   .hero__cta-wrap {
     display: flex;
-  }
-
-  /* ── Botão (básico) ── */
-  .hero__pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    height: 2.5rem;
-    padding: 0 1.25rem;
-    border-radius: 9999px;
-    background-color: var(--color-accent-contrast);
-    color: var(--color-bg);
-    text-decoration: none;
-    font-family: var(--font-primary);
-    font-size: var(--paragraph-s);
-    font-weight: 500;
-    line-height: 1;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: opacity 0.2s var(--ease-out-expo), transform 0.16s var(--ease-out-expo);
-  }
-
-  .hero__pill-arrow {
-    font-size: 0.9em;
-  }
-
-  .hero__pill:active {
-    transform: scale(0.97);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .hero__pill:hover {
-      opacity: 0.85;
-    }
   }
 
   /* ── Barra inferior ── */
@@ -380,17 +302,7 @@ const {
   /* ── Responsivo ── */
   @media (max-width: 767px) {
     .hero__nav {
-      grid-template-columns: auto 1fr;
       align-items: center;
-    }
-    .hero__nav-links {
-      display: none;
-    }
-    .hero__wordmark {
-      justify-self: start;
-    }
-    .hero__nav-cta span:not(.hero__nav-cta-arrow) {
-      display: none;
     }
 
     .hero__content {
@@ -467,6 +379,50 @@ const {
         reveal();
       }, { once: true });
     }
+
+    initHeroOverlap();
+  }
+
+  // ── Overlap Hero→About: pin do hero + overlay escurecendo no scrub ──
+  // Sticky descartado (transform do ScrollSmoother quebra position:sticky);
+  // pin via ScrollTrigger usa pinType:transform automaticamente sob ScrollSmoother.
+  function initHeroOverlap(): void {
+    const gsap = (window as any).gsap;
+    const ScrollTrigger = (window as any).ScrollTrigger;
+    if (!gsap || !ScrollTrigger) {
+      window.addEventListener('load', initHeroOverlap, { once: true });
+      return;
+    }
+
+    const wrapper = document.querySelector<HTMLElement>('[data-hero-scroll]');
+    const heroEl = document.getElementById('hero');
+    const overlay = document.querySelector<HTMLElement>('[data-hero-overlay]');
+    if (!wrapper || !heroEl || !overlay) return;
+
+    if (ScrollTrigger.getById('hero-pin')) return;
+
+    ScrollTrigger.create({
+      id: 'hero-pin',
+      trigger: wrapper,
+      start: 'top top',
+      end: 'bottom bottom',
+      pin: heroEl,
+      pinSpacing: false,
+      anticipatePin: 1,
+    });
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    ScrollTrigger.create({
+      trigger: wrapper,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1.5,
+      onUpdate: (self: { progress: number }) => {
+        gsap.set(overlay, { opacity: self.progress * 0.5 });
+      },
+    });
   }
 
   if (document.readyState === 'loading') {

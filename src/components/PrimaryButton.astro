@@ -1,0 +1,154 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  variant?: 'primary' | 'secondary';
+  showIcon?: boolean;
+  external?: boolean;
+  class?: string;
+}
+
+const {
+  href,
+  label,
+  variant = 'primary',
+  external = false,
+  class: className = '',
+} = Astro.props;
+
+const showIcon = Astro.props.showIcon ?? variant === 'primary';
+const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<a
+  href={href}
+  class:list={['button-main', `button-main--${variant}`, className]}
+  {...externalAttrs}
+>
+  <span class="button-main__text-mask">
+    <span class="button-main__text-track">
+      <span class="button-main__text">{label}</span>
+      <span class="button-main__text button-main__text--duplicate" aria-hidden="true">{label}</span>
+    </span>
+  </span>
+  {showIcon && (
+    <span class="button-main__icon" aria-hidden="true">
+      <svg viewBox="0 0 13 13" width="12" height="12" fill="none">
+        <path
+          d="M10.0208 3.41421L1.41421 12.0208L0 10.6066L8.60659 2H1.02082V0H12.0208V11H10.0208V3.41421Z"
+          fill="currentColor"
+        />
+      </svg>
+    </span>
+  )}
+</a>
+
+<style>
+  .button-main {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--button-gap);
+    min-height: var(--button-height);
+    padding: 0 var(--button-padding-x);
+    border-radius: var(--button-radius);
+    font-family: var(--font-primary);
+    font-size: var(--paragraph-s);
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--button-duration) var(--button-ease),
+      transform var(--button-duration-exit) var(--button-ease);
+  }
+
+  .button-main--primary {
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
+  }
+
+  .button-main--secondary {
+    background-color: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+  }
+
+  .button-main__text-mask {
+    display: block;
+    overflow: clip;
+    height: var(--button-line-height);
+  }
+
+  .button-main__text-track {
+    position: relative;
+    display: block;
+    transition: transform var(--button-duration-exit) var(--button-ease);
+  }
+
+  .button-main__text {
+    display: block;
+    height: var(--button-line-height);
+    line-height: var(--button-line-height);
+  }
+
+  .button-main__text--duplicate {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+  }
+
+  .button-main__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--button-duration) var(--button-ease);
+  }
+
+  .button-main:active {
+    transform: scale(0.97);
+  }
+
+  .button-main:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .button-main--primary:hover {
+      background-color: var(--button-primary-bg-hover);
+    }
+
+    .button-main--secondary:hover {
+      background-color: var(--button-secondary-bg-hover);
+    }
+
+    .button-main:hover .button-main__text-track,
+    .button-main:focus-visible .button-main__text-track {
+      transform: translateY(-100%);
+      transition-duration: var(--button-duration);
+    }
+
+    .button-main:hover .button-main__icon,
+    .button-main:focus-visible .button-main__icon {
+      transform: translate(0.15rem, -0.15rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button-main,
+    .button-main__text-track,
+    .button-main__icon {
+      transition: background-color var(--button-duration) var(--button-ease);
+    }
+
+    .button-main:active,
+    .button-main:hover .button-main__text-track,
+    .button-main:focus-visible .button-main__text-track,
+    .button-main:hover .button-main__icon,
+    .button-main:focus-visible .button-main__icon {
+      transform: none;
+    }
+  }
+</style>

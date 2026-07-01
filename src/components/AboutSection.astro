@@ -45,7 +45,7 @@ const {
 } = Astro.props;
 ---
 
-<section class="about-section" aria-label="About">
+<section id="about" class="about-section" aria-label="About">
   <p class="about-section__scroll-hint" aria-hidden="true">Scroll</p>
 
   <div class="about-section__pin">
@@ -87,11 +87,15 @@ const {
      ============================================================ */
   .about-section {
     position: relative;
+    /* Sobe sobre o runway do hero (z-above > z-base do .hero-scroll) com bg sólido */
+    z-index: var(--z-above);
+    margin-top: -100svh;
     background-color: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-primary);
-    /* Respiro vertical entre as seções vizinhas (Hero / Projects) */
-    padding-block: var(--section-space-y-tight);
+    /* Spacer ~130px no topo + respiro inferior entre as seções vizinhas */
+    padding-top: var(--section-overlap-spacer);
+    padding-bottom: var(--section-space-y-tight);
   }
 
   /* Hint "Scroll" centralizado — desaparece ao entrar na seção */
@@ -194,33 +198,41 @@ const {
 
   /* --- Responsivo ---------------------------------------------- */
   @media (max-width: 767px) {
-    .about-section__header {
-      display: block;
-      top: var(--space-xs);
+    /* Runway mais curto no mobile — mesma mecânica de pin + scrub do desktop */
+    .about-section__pin {
+      height: 200vh;
     }
+
+    /* Parágrafo: largura total + tipografia adequada ao viewport mobile */
+    .about-section__paragraph {
+      width: 100%;
+      font-size: clamp(1.875rem, 7.5vw, 2.75rem);
+      line-height: 1.05;
+    }
+
+    .about-section__paragraph :global(.word) {
+      transform: none;
+    }
+
+    /* Meta: imagem à esquerda do texto no mobile */
     .about-section__meta {
       justify-content: flex-start;
-      margin-top: var(--space-xs);
       text-align: left;
     }
+
     .about-section__meta-text {
       order: 2;
       text-align: left;
     }
+
     .about-section__image {
       order: 1;
       width: 3.625rem;
       height: 3.625rem;
     }
-  }
 
-  @media (max-width: 500px) {
-    .about-section__container {
-      align-items: flex-end;
-      padding-bottom: var(--space-lg);
-    }
-    .about-section__paragraph {
-      width: 100%;
+    .about-section__scroll-hint {
+      display: none;
     }
   }
 

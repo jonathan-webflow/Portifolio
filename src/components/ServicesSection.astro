@@ -46,7 +46,7 @@ const services: Service[] = [
 ];
 ---
 
-<section class="services" data-services aria-label="Services">
+<section id="services" class="services" data-services aria-label="Services">
 
   <!-- Background fullbleed por item — absoluto, preenche a section inteira -->
   <div class="services__bgs" aria-hidden="true">
@@ -284,6 +284,9 @@ const services: Service[] = [
     .services__item-left {
       grid-template-columns: 1fr;
       gap: var(--space-xs);
+    }
+    .services__heading {
+      font-size: clamp(2.25rem, 9vw, 3rem);
     }
   }
 

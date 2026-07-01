@@ -1,0 +1,352 @@
+---
+/**
+ * Navigation.astro — Menu hambúrguer global (scaling hamburger nav)
+ *
+ * Círculo branco no canto superior-direito que expande num painel com os
+ * links da navegação one-page. Transições 100% CSS via [data-navigation-status].
+ * JS apenas alterna o atributo, trava o scroll (ScrollSmoother.paused) e
+ * rola suave até a seção (smoother.scrollTo — âncora nativa não funciona sob
+ * o transform do ScrollSmoother).
+ *
+ * Renderizado em Layout.astro fora do #smooth-wrapper (position: fixed).
+ */
+
+const links = [
+  { label: 'Works', href: '#Works-Section' },
+  { label: 'Services', href: '#services' },
+  { label: 'Experiences', href: '#experiences' },
+  { label: 'About', href: '#about' },
+  { label: 'Contact', href: '#contact' },
+];
+---
+
+<nav class="nav" data-navigation-status="not-active" aria-label="Menu principal">
+  <div class="nav__backdrop" data-navigation-toggle="close" aria-hidden="true"></div>
+
+  <div class="nav__panel">
+    <div class="nav__bg"></div>
+
+    <div class="nav__group">
+      <p class="nav__label">Menu</p>
+      <ul class="nav__list">
+        {links.map((link) => (
+          <li class="nav__item">
+            <a class="nav__link" href={link.href}>
+              <span class="nav__link-text">{link.label}</span>
+              <span class="nav__dot" aria-hidden="true"></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <button
+      class="nav__toggle"
+      data-navigation-toggle="toggle"
+      type="button"
+      aria-label="Abrir menu"
+      aria-expanded="false"
+    >
+      <span class="nav__toggle-bar"></span>
+      <span class="nav__toggle-bar"></span>
+    </button>
+  </div>
+</nav>
+
+<style>
+  .nav {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    pointer-events: none;
+  }
+
+  /* Fundo escuro que aparece atrás do painel aberto */
+  .nav__backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: #000;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: auto;
+    transition: all 0.7s cubic-bezier(0.5, 0.5, 0, 1);
+  }
+
+  .nav[data-navigation-status='active'] .nav__backdrop {
+    opacity: 0.33;
+    visibility: visible;
+  }
+
+  /* Painel ancorado no canto superior-direito.
+     Base em fixa (~16px) → 2em = 32px (Figma), estável em qualquer viewport */
+  .nav__panel {
+    position: absolute;
+    top: 2em;
+    right: 2em;
+    border-radius: 1em;
+    font-size: clamp(1rem, 1.1vw, 1.15rem);
+    transition: transform 0.5s var(--ease-out-expo), opacity 0.5s var(--ease-out-expo);
+  }
+
+  /* Hide-on-scroll: some ao descer, reaparece ao subir */
+  .nav[data-nav-hidden='true'] .nav__panel {
+    transform: translateY(-150%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Círculo branco que cresce para preencher o painel */
+  .nav__bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 3.5em;
+    height: 3.5em;
+    background-color: #fff;
+    border-radius: 1.75em;
+    transition: all 0.7s cubic-bezier(0.5, 0.5, 0, 1);
+  }
+
+  .nav[data-navigation-status='active'] .nav__bg {
+    width: 100%;
+    height: 100%;
+    border-radius: 1.5em;
+  }
+
+  .nav__group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    min-width: clamp(17rem, 72vw, 20.5rem);
+    padding: 2.25em 2.5em 2em 2em;
+    transform-origin: 100% 0;
+    transform: scale(0.15);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: auto;
+    transition: transform 0.7s cubic-bezier(0.5, 0.5, 0, 1),
+      opacity 0.5s cubic-bezier(0.5, 0.5, 0, 1),
+      visibility 0.5s cubic-bezier(0.5, 0.5, 0, 1);
+  }
+
+  .nav[data-navigation-status='active'] .nav__group {
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav__label {
+    margin: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 1em;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-bg);
+    opacity: 0.5;
+  }
+
+  .nav__list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375em;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav__item {
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: var(--color-bg);
+  }
+
+  .nav__link-text {
+    margin: 0;
+    padding-right: 1.25em;
+    font-family: var(--font-primary);
+    font-weight: 500;
+    font-size: 2em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* Dot na cor accent — aparece no hover do link */
+  .nav__dot {
+    flex-shrink: 0;
+    width: 0.4em;
+    height: 0.4em;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    transform: scale(0);
+    opacity: 0.5;
+    transition: all 0.7s cubic-bezier(0.5, 0.5, 0, 1);
+  }
+
+  /* Enquanto um link está em hover, os dots dos outros somem */
+  .nav__group:has(.nav__link:hover) .nav__dot {
+    transform: scale(0);
+  }
+
+  /* Dot do link em hover aparece — prefixo .nav__group iguala a especificidade
+     da regra :has() acima (0,4,0) e, vindo depois, vence a cascata */
+  .nav__group .nav__link:hover .nav__dot {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  /* Botão toggle — círculo com duas barras que viram X */
+  .nav__toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5em;
+    height: 3.5em;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translate(0, 0);
+    transition: transform 0.7s cubic-bezier(0.5, 0.5, 0, 1);
+  }
+
+  .nav[data-navigation-status='active'] .nav__toggle {
+    transform: translate(-1em, 1em);
+  }
+
+  .nav__toggle-bar {
+    position: absolute;
+    width: 40%;
+    height: 0.125em;
+    background-color: var(--color-bg);
+    transform: translateY(-0.15em);
+    transition: transform 0.7s cubic-bezier(0.5, 0.5, 0, 1);
+  }
+
+  .nav__toggle-bar:nth-child(2) {
+    transform: translateY(0.15em);
+  }
+
+  .nav__toggle:hover .nav__toggle-bar {
+    transform: translateY(0.15em);
+  }
+
+  .nav__toggle:hover .nav__toggle-bar:nth-child(2) {
+    transform: translateY(-0.15em);
+  }
+
+  .nav[data-navigation-status='active'] .nav__toggle .nav__toggle-bar {
+    transform: translateY(0) rotate(45deg);
+  }
+
+  .nav[data-navigation-status='active'] .nav__toggle .nav__toggle-bar:nth-child(2) {
+    transform: translateY(0) rotate(-45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav__backdrop,
+    .nav__bg,
+    .nav__group,
+    .nav__toggle,
+    .nav__toggle-bar,
+    .nav__dot {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initNavigation(): void {
+    const nav = document.querySelector<HTMLElement>('.nav');
+    if (!nav) return;
+
+    const toggleBtn = nav.querySelector<HTMLButtonElement>('[data-navigation-toggle="toggle"]');
+
+    const setStatus = (active: boolean) => {
+      nav.setAttribute('data-navigation-status', active ? 'active' : 'not-active');
+      toggleBtn?.setAttribute('aria-expanded', String(active));
+      toggleBtn?.setAttribute('aria-label', active ? 'Fechar menu' : 'Abrir menu');
+
+      // Trava/destrava o scroll de fundo
+      const smoother = (window as any).__smoother;
+      if (smoother?.paused) smoother.paused(active);
+    };
+
+    const isActive = () => nav.getAttribute('data-navigation-status') === 'active';
+
+    // Toggle
+    nav.querySelectorAll('[data-navigation-toggle="toggle"]').forEach((btn) => {
+      btn.addEventListener('click', () => setStatus(!isActive()));
+    });
+
+    // Close (backdrop)
+    nav.querySelectorAll('[data-navigation-toggle="close"]').forEach((btn) => {
+      btn.addEventListener('click', () => setStatus(false));
+    });
+
+    // ESC fecha
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isActive()) setStatus(false);
+    });
+
+    // Hide-on-scroll: some ao descer, reaparece ao subir (via ScrollTrigger)
+    const initNavAutoHide = () => {
+      const ScrollTrigger = (window as any).ScrollTrigger;
+      if (!ScrollTrigger) {
+        window.addEventListener('load', initNavAutoHide, { once: true });
+        return;
+      }
+      const setHidden = (h: boolean) => nav.setAttribute('data-nav-hidden', String(h));
+      ScrollTrigger.create({
+        start: 0,
+        end: 'max',
+        onUpdate: (self: any) => {
+          if (isActive()) { setHidden(false); return; }        // menu aberto → sempre visível
+          if (self.scroll() < 80) { setHidden(false); return; } // topo → sempre visível
+          setHidden(self.direction === 1);                     // 1 desce → esconde | -1 sobe → mostra
+        },
+      });
+    };
+    initNavAutoHide();
+
+    // Links → fecha o menu e rola suave até a seção
+    nav.querySelectorAll<HTMLAnchorElement>('.nav__link').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (!href || !href.startsWith('#')) return;
+
+        e.preventDefault();
+        const target = document.querySelector<HTMLElement>(href);
+        setStatus(false);
+        if (!target) return;
+
+        const smoother = (window as any).__smoother;
+        if (smoother?.scrollTo) {
+          smoother.scrollTo(target, true, 'top top');
+        } else {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavigation);
+  } else {
+    initNavigation();
+  }
+</script>

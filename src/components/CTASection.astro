@@ -115,6 +115,17 @@ const images = [
     filter: saturate(0.7);
   }
 
+  /* --- Responsivo --- */
+  @media (max-width: 767px) {
+    .cta__center {
+      white-space: normal;
+      width: 90vw;
+    }
+    .cta__title {
+      font-size: clamp(2.5rem, 11vw, 3.5rem);
+    }
+  }
+
   /* --- A11y: reduzir movimento --- */
   @media (prefers-reduced-motion: reduce) {
     .cta__pin-zone { height: auto; }
@@ -191,10 +202,11 @@ const images = [
       const vh = window.innerHeight;
       const vmin = Math.min(vw, vh);
       const vmax = Math.max(vw, vh);
+      const mob  = vw < 768;
       return {
-        rx:   vmax * CFG.rxFactor,
-        ry:   vmin * CFG.ryFactor,
-        tile: Math.round(vmin * CFG.tileSizePct),
+        rx:   (mob ? vw : vmax) * (mob ? 0.34 : CFG.rxFactor),
+        ry:   vmin             * (mob ? 0.24 : CFG.ryFactor),
+        tile: Math.round(vmin  * (mob ? 0.17 : CFG.tileSizePct)),
       };
     }
 

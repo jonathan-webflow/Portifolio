@@ -9,7 +9,6 @@ interface Props {
 }
 
 const {
-  calLink = '#',
   github,
   instagram,
   linkedin,
@@ -118,13 +117,11 @@ const socials = [
       });
     }
 
-    // Inicia o loop apenas quando a section entra na viewport
     ScrollTrigger.create({
       trigger: '#contact',
       start: 'top 80%',
       once: true,
       onEnter: () => {
-        // J dispara primeiro, R com 1.5s de offset — efeito alternado
         setInterval(() => scrambleLetter(letterJ, 'J'), 3000);
         setTimeout(() => {
           setInterval(() => scrambleLetter(letterR, 'R'), 3000);
@@ -188,10 +185,10 @@ const socials = [
     let excludeZones: ExcludeZone[] = [];
 
     function updateExcludeZones(): void {
-      const innerRect = inner.getBoundingClientRect();
+      const innerRect = inner!.getBoundingClientRect();
       excludeZones = [];
       for (const sel of ['.contact-section__letter--j', '.contact-section__letter--r', '.contact-section__social']) {
-        const el = inner.querySelector<HTMLElement>(sel);
+        const el = inner!.querySelector<HTMLElement>(sel);
         if (!el) continue;
         const r = el.getBoundingClientRect();
         excludeZones.push({
@@ -205,8 +202,8 @@ const socials = [
 
     function resizeCanvases(): void {
       const dpr = window.devicePixelRatio || 1;
-      canvasW = inner.clientWidth;
-      canvasH = inner.clientHeight;
+      canvasW = inner!.clientWidth;
+      canvasH = inner!.clientHeight;
 
       CONNECTION_THRESHOLD = Math.round(canvasW * 0.16);
       ATTRACT_R            = Math.round(canvasW * 0.18);
@@ -446,18 +443,19 @@ const socials = [
     text-transform: uppercase;
     user-select: none;
     pointer-events: none;
+    z-index: 2;
   }
 
   .contact-section__letter--j {
     top: var(--space-md);
     left: var(--container-padding);
-    transform: translateY(-0.12em); /* alinha o cap visual com os links sociais */
+    transform: translateY(-0.12em);
   }
 
   .contact-section__letter--r {
     bottom: var(--space-md);
     right: var(--container-padding);
-    transform: translateY(0.12em); /* espelha o -0.12em do J — alinha baseline com o copyright */
+    transform: translateY(0.12em);
   }
 
   /* ── Social links ───────────────────────────────────── */
@@ -550,17 +548,11 @@ const socials = [
   .contact-section__canvas--base  { z-index: 0; }
   .contact-section__canvas--bloom { z-index: 1; mix-blend-mode: screen; opacity: 0.7; }
 
-  .contact-section__letter { z-index: 2; }
-  .contact-section__center { z-index: 2; }
-
   /* ── Accessibility ──────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .contact-section__canvas { display: none; }
-    .contact-section__cta-original,
-    .contact-section__cta-duplicate,
     .contact-section__social-original,
     .contact-section__social-duplicate,
-    .contact-section__corner,
     .contact-section__social-icon {
       transition: none;
     }

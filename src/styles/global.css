@@ -66,6 +66,26 @@
   --z-overlay: 100;
   --z-modal: 200;
   --z-top: 999;
+
+  /* Buttons */
+  --button-height: 2.75rem;
+  --button-padding-x: 1.25rem;
+  --button-gap: 0.5rem;
+  --button-radius: 100vw;
+  --button-line-height: 1.25rem;
+  --button-primary-bg: var(--color-accent-contrast);
+  --button-primary-text: var(--color-bg);
+  --button-primary-bg-hover: color-mix(in srgb, var(--color-accent-contrast) 88%, black);
+  --button-secondary-bg: var(--color-bg-alt);
+  --button-secondary-text: var(--color-accent-contrast);
+  --button-secondary-bg-hover: color-mix(in srgb, var(--color-bg-alt) 80%, white);
+  --button-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --button-duration: 280ms;
+  --button-duration-exit: 200ms;
+
+  /* Section overlap */
+  --section-overlap-spacer: clamp(5rem, 8vw, 8.125rem);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* --- Reset Moderno (Andy Bell) ---------------------------- */
@@ -85,6 +105,7 @@ html {
   scroll-behavior: auto !important;
   -webkit-text-size-adjust: 100%;
   hanging-punctuation: first last;
+  overflow-x: clip;
 
   /* ── Fluid root font-size ──────────────────────────────────
      1rem escala linearmente com a largura da viewport.

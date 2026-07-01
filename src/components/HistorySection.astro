@@ -254,6 +254,13 @@ const { entries = [
     border-radius: 2px;
   }
 
+  /* Telas muito grandes (≥ 1920px) — reduz parágrafo de descrição */
+  @media (min-width: 1920px) {
+    .history-section__description {
+      font-size: 1.1rem;
+    }
+  }
+
   /* --- Responsivo ------------------------------------------- */
   @media (max-width: 767px) {
     .history-section {
@@ -261,7 +268,7 @@ const { entries = [
     }
 
     .history-section__title {
-      font-size: 2.5rem;
+      font-size: clamp(2.5rem, 10.5vw, 9rem);
     }
 
     .history-section__bottom {
@@ -276,6 +283,12 @@ const { entries = [
     .history-section__image {
       width: 100%;
       max-width: 37.5rem;
+    }
+
+    .history-section__description {
+      font-size: 0.875em;
+      line-height: 1.35;
+      text-indent: 2em;
     }
   }
 

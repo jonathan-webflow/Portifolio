@@ -3,6 +3,7 @@ import '../styles/global.css';
 import '../styles/scramble.css';
 import CursorScramble from '../components/CursorScramble.astro';
 import Loader from '../components/Loader.astro';
+import Navigation from '../components/Navigation.astro';
 
 /**
  * Layout.astro — Shell global do Portfolio2026
@@ -104,8 +105,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Rethink+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Rethink+Sans:wght@400;500;600;700;800&family=DM+Mono&family=Cormorant:ital,wght@1,300&display=swap"
     />
+    <!-- Fontshare: Satoshi (display) + Switzer (subtitle) — HeroVitae -->
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500&f[]=switzer@400&display=swap" />
 
     <!-- ============================================================
          GSAP via CDN (jsDelivr) — carregar antes do body render
@@ -141,6 +145,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
   <body>
     <Loader />
+    <Navigation />
 
     <!-- ============================================================
          Estrutura de wrappers para smooth scroll

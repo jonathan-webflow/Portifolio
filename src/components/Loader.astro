@@ -1,61 +1,64 @@
 ---
 ---
 
-<section id="loader" aria-hidden="true">
-  <h1 id="loader__text">Initializing</h1>
+<section id="loader" data-loading-container aria-hidden="true" class="loader">
+  <div class="loader__screen">
+    <div
+      class="loader__words"
+      data-loading-words="Hello, Bonjour, स्वागत हे, Ciao, Olá, こんにちは, Hallå, Guten Tag, Hallo"
+    >
+      <span class="loader__dot"></span>
+      <p class="loader__word" data-loading-words-target>Hello</p>
+    </div>
+  </div>
 </section>
 
 <script>
   function initLoader() {
     const gsap = (window as any).gsap;
-    const SplitText = (window as any).SplitText;
-    if (!gsap || !SplitText) {
+    if (!gsap) {
       window.addEventListener('load', initLoader, { once: true });
       return;
     }
 
-    const section = document.getElementById('loader');
-    const heading = document.getElementById('loader__text');
-    if (!section || !heading) return;
+    const container = document.getElementById('loader');
+    const words = container?.querySelector<HTMLElement>('[data-loading-words]');
+    const target = words?.querySelector<HTMLElement>('[data-loading-words-target]');
+    if (!container || !words || !target) return;
+
+    const finish = () => {
+      container.style.display = 'none';
+      window.dispatchEvent(new CustomEvent('loader:complete'));
+    };
 
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      section.style.display = 'none';
-      window.dispatchEvent(new CustomEvent('loader:complete'));
+      finish();
       return;
     }
 
-    const split = new SplitText(heading, { type: 'chars', charsClass: 'loader__char' });
+    const list = (words.getAttribute('data-loading-words') ?? '')
+      .split(',')
+      .map((w) => w.trim())
+      .filter(Boolean);
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        section.style.display = 'none';
-        window.dispatchEvent(new CustomEvent('loader:complete'));
-      },
+    const tl = gsap.timeline({ onComplete: finish });
+
+    tl.set(words, { yPercent: 50 });
+    tl.to(words, { opacity: 1, yPercent: 0, duration: 1, ease: 'expo.inOut' });
+
+    list.forEach((word) => {
+      tl.call(() => { target.textContent = word; }, undefined, '+=0.15');
     });
 
-    tl.to(split.chars, {
-      color: 'var(--color-accent)',
-      textShadow: '0 0 10px rgba(255,0,0,0.7), 0 0 20px rgba(255,0,0,0.5)',
-      filter: 'blur(5px)',
-      stagger: { each: 0.08, from: 'left' },
-      ease: 'power2.inOut',
-    }).to(
-      section,
-      {
-        filter: 'blur(500px)',
-        opacity: 0,
-        duration: 0.9,
-        ease: 'power2.in',
-      },
-      'exit'
-    );
+    tl.to(words, { opacity: 0, yPercent: -75, duration: 0.8, ease: 'expo.in' });
+    tl.to(container, { autoAlpha: 0, duration: 0.6, ease: 'power1.inOut' }, '-=0.2');
   }
 
   initLoader();
 </script>
 
 <style>
-  #loader {
+  .loader {
     position: fixed;
     inset: 0;
     z-index: 9999;
@@ -63,15 +66,39 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
   }
 
-  #loader__text {
-    font-family: var(--font-display);
-    font-size: var(--h1);
-    color: var(--color-text);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  .loader__screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* font-size base fluida — dot e word herdam via em */
+  .loader__words {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    opacity: 0;
+    font-size: clamp(1rem, 2vw, 1.6rem);
+  }
+
+  .loader__dot {
+    width: 0.75em;
+    height: 0.75em;
+    border-radius: 50%;
+    background: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .loader__word {
+    font-family: var(--font-primary);
+    font-weight: 500;
+    font-size: 4.5em;
+    line-height: 1;
     margin: 0;
+    color: var(--color-text);
   }
 </style>

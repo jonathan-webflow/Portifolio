@@ -49,7 +49,7 @@ const experiences: Experience[] = [
 ];
 ---
 
-<section class="exp" data-exp aria-label="Work Experience">
+<section id="experiences" class="exp" data-exp aria-label="Work Experience">
 
   <!-- Eyebrow / section label -->
   <div class="exp__header" data-exp-header>
@@ -255,24 +255,59 @@ const experiences: Experience[] = [
   @media (max-width: 767px) {
     .exp {
       padding-block: var(--space-lg);
+      padding-inline: var(--space-sm);
     }
+
     .exp__info {
       display: none;
     }
+
+    /* Layout horizontal no mobile: role ← → period / empresa numa segunda linha */
     .exp__item {
-      flex-direction: column;
+      flex-direction: row;
+      flex-wrap: wrap;
       align-items: flex-start;
-      gap: 0.4em;
+      justify-content: space-between;
+      row-gap: 0.25rem;
+      column-gap: 0.75rem;
+      padding-block: 1.1rem;
+      padding-inline: 0.25rem;
     }
-    .exp__col--company {
-      display: none;
-    }
-    .exp__col--period {
-      text-align: left;
-    }
+
     .exp__col--role {
+      order: 1;
       min-width: 0;
-      width: 100%;
+      flex: 1;
+    }
+
+    .exp__col--period {
+      order: 2;
+      flex-shrink: 0;
+      text-align: right;
+      padding-top: 0.15rem;
+    }
+
+    /* Empresa: linha própria abaixo (order 3 + flex 100%) */
+    .exp__col--company {
+      order: 3;
+      display: block;
+      flex: 0 0 100%;
+    }
+
+    .exp__col--company .exp__text {
+      font-size: var(--caps);
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+    }
+
+    .exp__role {
+      font-size: clamp(1.15rem, 4.8vw, 1.55rem);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+    }
+
+    .exp__text {
+      font-size: 0.78rem;
     }
   }
 

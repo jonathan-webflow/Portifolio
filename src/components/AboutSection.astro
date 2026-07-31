@@ -113,13 +113,15 @@ const {
     will-change: opacity, visibility;
   }
 
-  /* 350vh reservados para a rolagem que movimenta o container pinado */
+  /* 350svh reservados para a rolagem que movimenta o container pinado.
+     svh (não vh) evita que o recolhimento da barra de endereço no mobile
+     recalcule a altura em pleno scroll e desalinhe o pin. */
   .about-section__pin {
-    height: 350vh;
+    height: 350svh;
   }
 
   .about-section__container {
-    height: 100vh;
+    height: 100svh;
     display: flex;
     align-items: center;
     padding-inline: var(--container-padding);
@@ -200,18 +202,24 @@ const {
   @media (max-width: 767px) {
     /* Runway mais curto no mobile — mesma mecânica de pin + scrub do desktop */
     .about-section__pin {
-      height: 200vh;
+      height: 200svh;
     }
 
-    /* Parágrafo: largura total + tipografia adequada ao viewport mobile */
+    /* Container: parágrafo ancorado logo abaixo do header, com respiro
+       proposital, em vez de centralizado no meio da tela (único filho
+       no fluxo flex já que o header é position:absolute). */
+    .about-section__container {
+      align-items: flex-start;
+      padding-top: calc(var(--space-xl) + var(--space-sm));
+    }
+
+    /* Parágrafo: largura total + tipografia adequada ao viewport mobile.
+       O transform do .word herda a regra base (translate3d off-screen) —
+       mesma mecânica de reveal do desktop, só que com runway mais curto. */
     .about-section__paragraph {
       width: 100%;
       font-size: clamp(1.875rem, 7.5vw, 2.75rem);
       line-height: 1.05;
-    }
-
-    .about-section__paragraph :global(.word) {
-      transform: none;
     }
 
     /* Meta: imagem à esquerda do texto no mobile */

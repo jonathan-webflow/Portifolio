@@ -9,5 +9,5 @@ tags: ["UI Design", "Webflow Development"]
 industries: ["Fashion", "Sustainability"]
 url: "https://www.bioblanks.com/"
 featured: true
-order: 2
+order: 3
 ---

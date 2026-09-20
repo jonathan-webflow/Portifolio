@@ -9,6 +9,7 @@ interface Props {
 }
 
 const {
+  calLink,
   github,
   instagram,
   linkedin,
@@ -18,12 +19,16 @@ const {
 
 const year = new Date().getFullYear();
 
+const isValidHref = (href?: string): href is string =>
+  Boolean(href && href !== '#');
+
 const socials = [
+  { label: 'Book a call', href: calLink },
   { label: 'GitHub', href: github },
   { label: 'Instagram', href: instagram },
   { label: 'LinkedIn', href: linkedin },
   { label: 'Dribbble', href: dribbble },
-].filter((s): s is { label: string; href: string } => Boolean(s.href));
+].filter((s): s is { label: string; href: string } => isValidHref(s.href));
 ---
 
 <section id="contact" class="contact-section">

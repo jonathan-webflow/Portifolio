@@ -4,6 +4,7 @@ import '../styles/scramble.css';
 import CursorScramble from '../components/CursorScramble.astro';
 import Loader from '../components/Loader.astro';
 import Navigation from '../components/Navigation.astro';
+import { profileKnowsAbout, profileSameAs } from '@/data/profile';
 
 /**
  * Layout.astro — Shell global do Portfolio2026
@@ -23,12 +24,14 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  jsonLdExtra?: Record<string, unknown>[];
 }
 
 const {
   title,
   description = 'Creative developer passionate about animations and advanced AI systems. Portfolio of Jonathan Rocha — building standout digital experiences from Rio de Janeiro.',
   ogImage = '/og-default.jpg',
+  jsonLdExtra = [],
 } = Astro.props;
 
 const siteName = 'Jonathan Rocha';
@@ -60,8 +63,8 @@ const ogImageAlt = 'Jrocha — Creative developer with a passion for animations 
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={absoluteOgImage} />
-    <meta property="og:image:width" content="1024" />
-    <meta property="og:image:height" content="537" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={ogImageAlt} />
 
     <!-- Twitter Card -->
@@ -89,10 +92,13 @@ const ogImageAlt = 'Jrocha — Creative developer with a passion for animations 
           "description": description,
           "url": Astro.site,
           "image": absoluteOgImage,
-          "sameAs": [
-            "https://github.com/jonathan-webflow",
-          ],
-          "knowsAbout": ["Webflow", "Shopify", "GSAP", "Creative Development", "Motion Design", "UI/UX Design"]
+          "sameAs": profileSameAs,
+          "knowsAbout": [...profileKnowsAbout],
+          "worksFor": {
+            "@type": "Organization",
+            "name": "Carthagos",
+            "url": "https://carthagos.com"
+          }
         },
         {
           "@type": "WebSite",
@@ -111,8 +117,12 @@ const ogImageAlt = 'Jrocha — Creative developer with a passion for animations 
           "description": description,
           "isPartOf": { "@id": `${Astro.site}#website` },
           "about": { "@id": `${Astro.site}#person` },
-          "inLanguage": "en-US"
-        }
+          "inLanguage": "en-US",
+          ...(jsonLdExtra.length > 0
+            ? { mainEntity: { "@id": `${Astro.site}#portfolio` } }
+            : {}),
+        },
+        ...jsonLdExtra,
       ]
     })} />
 

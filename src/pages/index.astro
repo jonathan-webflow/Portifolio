@@ -1,4 +1,7 @@
 ---
+import { getCollection } from 'astro:content';
+import { profileLinks } from '@/data/profile';
+import { buildProjectSchema } from '@/data/project-schema';
 import Layout from '../layouts/Layout.astro';
 import HeroVitae from '../components/HeroVitae.astro';
 import AboutSection from '../components/AboutSection.astro';
@@ -8,11 +11,15 @@ import WorksSection from '@components/WorksSection.astro';
 import ServicesSection from '../components/ServicesSection.astro';
 import CTASection from '../components/CTASection.astro';
 import ContactSection from '../components/ContactSection.astro';
+
+const projectEntries = await getCollection('projects', ({ data }) => !data.draft);
+const projectSchema = buildProjectSchema(projectEntries, Astro.site!);
 ---
 
 <Layout
   title="Jonathan Rocha — Creative Developer | Digital Experiences"
   description="Creative developer passionate about animations and advanced AI systems. Portfolio of Jonathan Rocha — building standout digital experiences from Rio de Janeiro."
+  jsonLdExtra={projectSchema}
 >
 
   <HeroVitae />
@@ -31,11 +38,11 @@ import ContactSection from '../components/ContactSection.astro';
 
   <ContactSection
     copyrightName="Jonathan Rocha"
-    calLink="#"
-    github="#"
-    instagram="#"
-    linkedin="#"
-    dribbble="#"
+    calLink={profileLinks.cal}
+    github={profileLinks.github}
+    instagram={profileLinks.instagram}
+    linkedin={profileLinks.linkedin}
+    dribbble={profileLinks.dribbble}
   />
 
 </Layout>
